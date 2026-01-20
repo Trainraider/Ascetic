@@ -1,10 +1,12 @@
 using Gtk 4.0;
+using WebKit 6.0;
+
 // This blueprint format is much easier than XML to work with.
 // Using it directly in your project requires the blueprint-compiler,
 // and an extra build step.
 Window window_main {
   can-focus: false;
-  title: _("Template Window");
+  title: _("Ascetic");
   default-width: 640;
   default-height: 480;
   icon-name: "template_app";
@@ -27,33 +29,9 @@ Window window_main {
           }
         }
 
-        Box {
-          orientation: vertical;
-          valign: center;
-          spacing: 20;
-          Box {
-            orientation: horizontal;
-            halign: center;
-            spacing: 20;
-            Button counter_1 {
-              label: _("Counter 1");
-              clicked => $on_button_1_clicked();
-            }
-            Label label_1 {
-              label: _("0");
-            }
-          }
-          Box {
-            orientation: horizontal;
-            halign: center;
-            spacing: 20;
-            Button counter_2 {
-              label: _("Counter 2");
-            }
-            Label label_2 {
-              label: _("0");
-            }
-          }
+        WebKit.WebView web_view {
+          hexpand: true;
+          vexpand: true;
         }
       };
     }
