@@ -1,0 +1,11 @@
+GTK4 library headers, make, blueprint-compiler, and gcc are required to build this project. 
+
+Install dependencies on Debian or Ubuntu based linux distro:
+
+    $ sudo apt update
+    $ sudo apt upgrade
+    $ sudo apt install libgtk-4-dev blueprint-compiler build-essential pkg-config
+
+Then to install, simply enter this directory and run:
+
+    $ sudo make install

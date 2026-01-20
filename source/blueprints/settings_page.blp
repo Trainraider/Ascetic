@@ -1,0 +1,37 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $TemplateAppSettingsPage : Gtk.Widget {
+  Overlay {
+    [overlay]
+    Box {
+      halign: end;
+
+      Box {
+        orientation: vertical;
+
+        Button back_button {
+          margin-top: 10;
+          margin-end: 10;
+          icon-name: "go-previous-view-symbolic";
+        }
+      }
+    }
+
+    Box {
+      orientation: vertical;
+
+      Adw.StatusPage {
+        valign: start;
+        title: _("Settings");
+        description: _("This is a settings page.");
+
+        Label {
+          halign: start;
+          label: _("But there's no settings.\nGood luck!");
+          margin-start: 40;
+        }
+      }
+    }
+  }
+}

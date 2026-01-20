@@ -1,0 +1,65 @@
+using Gtk 4.0;
+// This blueprint format is much easier than XML to work with.
+// Using it directly in your project requires the blueprint-compiler,
+// and an extra build step.
+Window window_main {
+  can-focus: false;
+  title: _("Template Window");
+  default-width: 640;
+  default-height: 480;
+  icon-name: "template_app";
+  Stack stack_main{
+
+    StackPage main_page {
+      child: Overlay {
+        [overlay]
+        Box {
+          halign: end;
+
+          Box {
+            orientation: vertical;
+
+            Button open_settings_button {
+              margin-top: 10;
+              margin-end: 10;
+              icon-name: "application-menu-symbolic";
+            }
+          }
+        }
+
+        Box {
+          orientation: vertical;
+          valign: center;
+          spacing: 20;
+          Box {
+            orientation: horizontal;
+            halign: center;
+            spacing: 20;
+            Button counter_1 {
+              label: _("Counter 1");
+              clicked => $on_button_1_clicked();
+            }
+            Label label_1 {
+              label: _("0");
+            }
+          }
+          Box {
+            orientation: horizontal;
+            halign: center;
+            spacing: 20;
+            Button counter_2 {
+              label: _("Counter 2");
+            }
+            Label label_2 {
+              label: _("0");
+            }
+          }
+        }
+      };
+    }
+
+    StackPage settings_page {
+      child: $TemplateAppSettingsPage settings_page_template {};
+    }
+  }
+}
