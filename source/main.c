@@ -7,9 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* The macros VERSION, NAME, TARGET, AUTHOR and COPYRIGHT are available for this program to reference
-information about itself. These macros are defined in config.mk */
-
 static GtkBuilder*     builder;
 static GtkApplication* app;
 static WebKitWebView* web_view;
@@ -57,6 +54,13 @@ void on_back_button_clicked(GtkWidget* widget, gpointer user_data)
         gtk_stack_set_visible_child(stack, main_page);
 }
 
+void load_url_from_entry(GtkWidget* entry, gpointer user_data)
+{
+        (void)user_data;
+        const char* url = gtk_editable_get_text(GTK_EDITABLE(entry)); 
+        webkit_web_view_load_uri(web_view, url);
+}
+
 #define BUILDER_GET_OBJECT(builder, type, TYPE, name) \
 ({ \
         type* obj = TYPE(gtk_builder_get_object(builder, name)); \
@@ -68,6 +72,7 @@ void activate(GtkApplication* app, gpointer user_data)
 {
         (void)user_data;
         GtkBuilderScope* scope = gtk_builder_cscope_new();
+        gtk_builder_cscope_add_callback(scope, load_url_from_entry);
         webkit_web_view_get_type();
         builder = gtk_builder_new();
         gtk_builder_set_scope(builder, scope);
