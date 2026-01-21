@@ -1,16 +1,27 @@
 #include "data.h"
+#include "defer.h"
 #include "settings_page.h"
+#include "uri.h"
 #include "version.h"
 #include <adwaita.h>
 #include <gtk/gtk.h>
-#include <webkit/webkit.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <webkit/webkit.h>
 
 static GtkBuilder*     builder;
 static AdwApplication* app;
-static WebKitWebView* web_view;
+static WebKitWebView*  web_view;
+
+void dg_free(void* ptr)
+{
+        void** _ptr = (void**)ptr;
+        if (*_ptr) {
+                g_free(*_ptr);
+                *_ptr = NULL;
+        }
+}
 
 void check_gobject(GObject* obj, gchar* failure_msg)
 {
@@ -57,17 +68,30 @@ void on_back_button_clicked(GtkWidget* widget, gpointer user_data)
 
 void load_url_from_entry(GtkWidget* entry, gpointer user_data)
 {
-        (void)user_data;
-        const char* url = gtk_editable_get_text(GTK_EDITABLE(entry)); 
-        webkit_web_view_load_uri(web_view, url);
+        S_(void)
+                user_data;
+                const char* url        = gtk_editable_get_text(GTK_EDITABLE(entry));
+                ParsedUri   parsed_uri = uri_parse(url);
+                defer(dg_free, parsed_uri.str);
+                gtk_editable_set_text(GTK_EDITABLE(entry), parsed_uri.str);
+                if (parsed_uri.is_uri) {
+                        webkit_web_view_load_uri(web_view, parsed_uri.str);
+                } else {
+                        S_
+                                char* search_url = str_to_google_search_url(parsed_uri.str);
+                                defer(dg_free, search_url);
+                                webkit_web_view_load_uri(web_view, search_url);
+                        _S
+                }
+        _S
 }
 
-#define BUILDER_GET_OBJECT(builder, type, TYPE, name) \
-({ \
-        type* obj = TYPE(gtk_builder_get_object(builder, name)); \
-        check_gobject(G_OBJECT(obj), "Error: Failed to get " name ".\n"); \
-        obj; \
-})
+#define BUILDER_GET_OBJECT(builder, type, TYPE, name)                             \
+        ({                                                                        \
+                type* obj = TYPE(gtk_builder_get_object(builder, name));          \
+                check_gobject(G_OBJECT(obj), "Error: Failed to get " name ".\n"); \
+                obj;                                                              \
+        })
 
 void activate(GtkApplication* app, gpointer user_data)
 {
@@ -86,36 +110,40 @@ void activate(GtkApplication* app, gpointer user_data)
         }
         g_object_unref(scope);
 
-        GtkWindow* window = GTK_WINDOW(BUILDER_GET_OBJECT(builder, AdwWindow, ADW_WINDOW, "window_main"));
-        GtkStack* stack_main = BUILDER_GET_OBJECT(builder, GtkStack, GTK_STACK, "stack_main");
+        GtkWindow* window     = GTK_WINDOW(BUILDER_GET_OBJECT(builder, AdwWindow, ADW_WINDOW, "window_main"));
+        GtkStack*  stack_main = BUILDER_GET_OBJECT(builder, GtkStack, GTK_STACK, "stack_main");
 
-        GtkStackPage* main_page = GTK_STACK_PAGE(gtk_builder_get_object(builder, "main_page"));
-        check_gobject(G_OBJECT(main_page), "Error: Failed to get the main_page.\n");
-        GtkStackPage* settings_page = GTK_STACK_PAGE(gtk_builder_get_object(builder, "settings_page"));
-        check_gobject(G_OBJECT(settings_page), "Error: Failed to get the settings_page.\n");
-        GtkWidget* template = GTK_WIDGET(gtk_builder_get_object(builder, "settings_page_template"));
-        check_gobject(G_OBJECT(template), "Error: Failed to get the settings_page_template.\n");
+        GtkStackPage* main_page =
+GTK_STACK_PAGE
+(gtk_builder_get_object(builder, "main_page"));
+check_gobject(G_OBJECT(main_page), "Error: Failed to get the main_page.\n");
+GtkStackPage* settings_page =
+GTK_STACK_PAGE
+(gtk_builder_get_object(builder, "settings_page"));
+check_gobject(G_OBJECT(settings_page), "Error: Failed to get the settings_page.\n");
+GtkWidget* template = GTK_WIDGET(gtk_builder_get_object(builder, "settings_page_template"));
+check_gobject(G_OBJECT(template), "Error: Failed to get the settings_page_template.\n");
 
-        GtkWidget* back_button = template_app_settings_page_get_back_button(TEMPLATE_APP_SETTINGS_PAGE(template));
-        check_gobject(G_OBJECT(back_button), "Error: Failed to get the back_button.\n");
-        GtkWidget* open_settings_button = GTK_WIDGET(gtk_builder_get_object(builder, "open_settings_button"));
-        check_gobject(G_OBJECT(open_settings_button), "Error: Failed to get the open_settings_button.\n");
+GtkWidget* back_button = template_app_settings_page_get_back_button(TEMPLATE_APP_SETTINGS_PAGE(template));
+check_gobject(G_OBJECT(back_button), "Error: Failed to get the back_button.\n");
+GtkWidget* open_settings_button = GTK_WIDGET(gtk_builder_get_object(builder, "open_settings_button"));
+check_gobject(G_OBJECT(open_settings_button), "Error: Failed to get the open_settings_button.\n");
 
-        web_view = WEBKIT_WEB_VIEW(gtk_builder_get_object(builder, "web_view"));
-        check_gobject(G_OBJECT(web_view), "Error: Failed to get the web_view.\n");
-        webkit_web_view_load_uri(web_view, "https://www.example.com");
+web_view = WEBKIT_WEB_VIEW(gtk_builder_get_object(builder, "web_view"));
+check_gobject(G_OBJECT(web_view), "Error: Failed to get the web_view.\n");
+webkit_web_view_load_uri(web_view, "https://www.example.com");
 
-        open_settings_state.stack = stack_main;
-        open_settings_state.page  = gtk_stack_page_get_child(settings_page);
+open_settings_state.stack = stack_main;
+open_settings_state.page  = gtk_stack_page_get_child(settings_page);
 
-        back_to_main_state.stack = stack_main;
-        back_to_main_state.page  = gtk_stack_page_get_child(main_page);
+back_to_main_state.stack = stack_main;
+back_to_main_state.page  = gtk_stack_page_get_child(main_page);
 
-        g_signal_connect(open_settings_button, "clicked", G_CALLBACK(on_open_settings_button_clicked), &open_settings_state);
-        g_signal_connect(back_button, "clicked", G_CALLBACK(on_back_button_clicked), &back_to_main_state);
+g_signal_connect(open_settings_button, "clicked", G_CALLBACK(on_open_settings_button_clicked), &open_settings_state);
+g_signal_connect(back_button, "clicked", G_CALLBACK(on_back_button_clicked), &back_to_main_state);
 
-        gtk_window_set_application(window, GTK_APPLICATION(app));
-        gtk_window_present(window);
+gtk_window_set_application(window, GTK_APPLICATION(app));
+gtk_window_present(window);
 }
 
 int main(int argc, char* argv[])
