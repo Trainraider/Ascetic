@@ -2,50 +2,50 @@ using Gtk 4.0;
 using Adw 1;
 using WebKit 6.0;
 
-// This blueprint format is much easier than XML to work with.
-// Using it directly in your project requires the blueprint-compiler,
-// and an extra build step.
-Window window_main {
+Adw.Window window_main {
   default-width: 800;
   default-height: 600;
   icon-name: "template_app";
-  titlebar: Adw.HeaderBar {
-    title-widget: Entry {
-      hexpand: true;
-      input-purpose: url;
-      input-hints: no_spellcheck;
-      editable: true;
-      activate => $load_url_from_entry();
-    };
-    [end]
-    Button open_settings_button {
-      icon-name: "application-menu-symbolic";
-    }
-  };
-  Stack stack_main{
-
-    StackPage main_page {
-      child: Overlay {
-        [overlay]
-        Box {
-          halign: end;
-
-          Box {
-            orientation: vertical;
-
-            
-          }
-        }
-
-        WebKit.WebView web_view {
-          hexpand: true;
-          vexpand: true;
-        }
+  
+  content: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Entry {
+        hexpand: true;
+        input-purpose: url;
+        input-hints: no_spellcheck;
+        editable: true;
+        activate => $load_url_from_entry();
       };
+      
+      [end]
+      Button open_settings_button {
+        icon-name: "application-menu-symbolic";
+      }
     }
+    
+    content: Stack stack_main {
+      StackPage main_page {
+        child: Overlay {
+          [overlay]
+          Box {
+            halign: end;
 
-    StackPage settings_page {
-      child: $TemplateAppSettingsPage settings_page_template {};
-    }
-  }
+            Box {
+              orientation: vertical;
+            }
+          }
+
+          WebKit.WebView web_view {
+            hexpand: true;
+            vexpand: true;
+          }
+        };
+      }
+
+      StackPage settings_page {
+        child: $TemplateAppSettingsPage settings_page_template {};
+      }
+    };
+  };
 }

@@ -1,6 +1,7 @@
 #include "data.h"
 #include "settings_page.h"
 #include "version.h"
+#include <adwaita.h>
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
 #include <stdio.h>
@@ -8,7 +9,7 @@
 #include <string.h>
 
 static GtkBuilder*     builder;
-static GtkApplication* app;
+static AdwApplication* app;
 static WebKitWebView* web_view;
 
 void check_gobject(GObject* obj, gchar* failure_msg)
@@ -85,7 +86,7 @@ void activate(GtkApplication* app, gpointer user_data)
         }
         g_object_unref(scope);
 
-        GtkWindow* window = BUILDER_GET_OBJECT(builder, GtkWindow, GTK_WINDOW, "window_main");
+        GtkWindow* window = GTK_WINDOW(BUILDER_GET_OBJECT(builder, AdwWindow, ADW_WINDOW, "window_main"));
         GtkStack* stack_main = BUILDER_GET_OBJECT(builder, GtkStack, GTK_STACK, "stack_main");
 
         GtkStackPage* main_page = GTK_STACK_PAGE(gtk_builder_get_object(builder, "main_page"));
@@ -113,7 +114,7 @@ void activate(GtkApplication* app, gpointer user_data)
         g_signal_connect(open_settings_button, "clicked", G_CALLBACK(on_open_settings_button_clicked), &open_settings_state);
         g_signal_connect(back_button, "clicked", G_CALLBACK(on_back_button_clicked), &back_to_main_state);
 
-        gtk_window_set_application(window, app);
+        gtk_window_set_application(window, GTK_APPLICATION(app));
         gtk_window_present(window);
 }
 
@@ -124,7 +125,7 @@ int main(int argc, char* argv[])
                         version();
         }
 
-        app = gtk_application_new(APP_ID, G_APPLICATION_DEFAULT_FLAGS);
+        app = adw_application_new(APP_ID, G_APPLICATION_DEFAULT_FLAGS);
         g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
         int status = g_application_run(G_APPLICATION(app), argc, argv);
 
