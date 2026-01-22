@@ -10,6 +10,16 @@ Adw.Window window_main {
   content: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
+      [start]
+      Button {
+        icon-name: "go-previous-view-page-symbolic";
+        clicked => $on_back_button_clicked();
+      }
+      Button {
+        icon-name: "go-next-view-page-symbolic";
+        clicked => $on_forward_button_clicked();
+      }
+      
       title-widget: Entry {
         hexpand: true;
         input-purpose: url;

@@ -52,6 +52,18 @@ typedef struct
 static StackState open_settings_state;
 static StackState back_to_main_state;
 
+void on_back_button_clicked(GtkWidget* widget, gpointer user_data) {
+        (void)widget;
+        (void)user_data;
+        webkit_web_view_go_back(web_view);
+}
+
+void on_forward_button_clicked(GtkWidget* widget, gpointer user_data) {
+        (void)widget;
+        (void)user_data;
+        webkit_web_view_go_forward(web_view);
+}
+
 void on_open_settings_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
@@ -60,7 +72,7 @@ void on_open_settings_button_clicked(GtkWidget* widget, gpointer user_data)
         gtk_stack_set_visible_child(stack, settings_page);
 }
 
-void on_back_button_clicked(GtkWidget* widget, gpointer user_data)
+void on_close_settings_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
         GtkStack*  stack     = ((StackState*)user_data)->stack;
@@ -100,6 +112,8 @@ void activate(GtkApplication* app, gpointer user_data)
         (void)user_data;
         GtkBuilderScope* scope = gtk_builder_cscope_new();
         gtk_builder_cscope_add_callback(scope, load_url_from_entry);
+        gtk_builder_cscope_add_callback(scope, on_back_button_clicked);
+        gtk_builder_cscope_add_callback(scope, on_forward_button_clicked);
         webkit_web_view_get_type();
         builder = gtk_builder_new();
         gtk_builder_set_scope(builder, scope);
@@ -120,8 +134,8 @@ void activate(GtkApplication* app, gpointer user_data)
         GtkStackPage* settings_page = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "settings_page");
         GtkWidget*    template      = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "settings_page_template");
 
-        GtkWidget* back_button = template_app_settings_page_get_back_button(TEMPLATE_APP_SETTINGS_PAGE(template));
-        check_gobject(G_OBJECT(back_button), "Error: Failed to get the back_button.\n");
+        GtkWidget* close_settings_button = template_app_settings_page_get_back_button(TEMPLATE_APP_SETTINGS_PAGE(template));
+        check_gobject(G_OBJECT(close_settings_button), "Error: Failed to get the close_settings_button.\n");
         GtkWidget* open_settings_button = GTK_WIDGET(gtk_builder_get_object(builder, "open_settings_button"));
         check_gobject(G_OBJECT(open_settings_button), "Error: Failed to get the open_settings_button.\n");
 
@@ -136,7 +150,7 @@ void activate(GtkApplication* app, gpointer user_data)
         back_to_main_state.page  = gtk_stack_page_get_child(main_page);
 
         g_signal_connect(open_settings_button, "clicked", G_CALLBACK(on_open_settings_button_clicked), &open_settings_state);
-        g_signal_connect(back_button, "clicked", G_CALLBACK(on_back_button_clicked), &back_to_main_state);
+        g_signal_connect(close_settings_button, "clicked", G_CALLBACK(on_close_settings_button_clicked), &back_to_main_state);
 
         gtk_window_set_application(window, GTK_APPLICATION(app));
         gtk_window_present(window);
