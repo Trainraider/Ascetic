@@ -12,12 +12,16 @@ Adw.Window window_main {
     Adw.HeaderBar {
       [start]
       Button {
-        icon-name: "go-previous-view-page-symbolic";
+        icon-name: "go-previous-symbolic";
         clicked => $on_back_button_clicked();
       }
       Button {
-        icon-name: "go-next-view-page-symbolic";
+        icon-name: "go-next-symbolic";
         clicked => $on_forward_button_clicked();
+      }
+      Button {
+        icon-name: "view-refresh-symbolic";
+        clicked => $on_refresh_button_clicked();
       }
       
       title-widget: Entry {
@@ -30,7 +34,7 @@ Adw.Window window_main {
       
       [end]
       Button open_settings_button {
-        icon-name: "application-menu-symbolic";
+        icon-name: "menu_new-symbolic";
       }
     }
     

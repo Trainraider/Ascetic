@@ -64,6 +64,12 @@ void on_forward_button_clicked(GtkWidget* widget, gpointer user_data) {
         webkit_web_view_go_forward(web_view);
 }
 
+void on_refresh_button_clicked(GtkWidget* widget, gpointer user_data) {
+        (void)widget;
+        (void)user_data;
+        webkit_web_view_reload(web_view);
+}
+
 void on_open_settings_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
