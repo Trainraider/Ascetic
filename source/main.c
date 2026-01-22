@@ -134,7 +134,7 @@ void activate(GtkApplication* app, gpointer user_data)
         GtkStackPage* settings_page = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "settings_page");
         GtkWidget*    template      = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "settings_page_template");
 
-        GtkWidget* close_settings_button = template_app_settings_page_get_back_button(TEMPLATE_APP_SETTINGS_PAGE(template));
+        GtkWidget* close_settings_button = template_app_settings_page_get_close_settings_button(TEMPLATE_APP_SETTINGS_PAGE(template));
         check_gobject(G_OBJECT(close_settings_button), "Error: Failed to get the close_settings_button.\n");
         GtkWidget* open_settings_button = GTK_WIDGET(gtk_builder_get_object(builder, "open_settings_button"));
         check_gobject(G_OBJECT(open_settings_button), "Error: Failed to get the open_settings_button.\n");

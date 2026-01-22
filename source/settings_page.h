@@ -10,7 +10,7 @@ G_DECLARE_FINAL_TYPE(TemplateAppSettingsPage, template_app_settings_page, TEMPLA
 
 TemplateAppSettingsPage* template_app_settings_page_new(void);
 
-GtkWidget* template_app_settings_page_get_back_button(TemplateAppSettingsPage* self);
+GtkWidget* template_app_settings_page_get_close_settings_button(TemplateAppSettingsPage* self);
 
 G_END_DECLS
 

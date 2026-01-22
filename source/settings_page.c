@@ -3,12 +3,12 @@
 
 struct _TemplateAppSettingsPage {
         GtkWidget  parent_instance;
-        GtkWidget* back_button;
+        GtkWidget* close_settings_button;
 };
 
-GtkWidget* template_app_settings_page_get_back_button(TemplateAppSettingsPage* self)
+GtkWidget* template_app_settings_page_get_close_settings_button(TemplateAppSettingsPage* self)
 {
-        return self->back_button;
+        return self->close_settings_button;
 }
 
 G_DEFINE_TYPE(TemplateAppSettingsPage, template_app_settings_page, GTK_TYPE_WIDGET)
@@ -19,7 +19,7 @@ static void template_app_settings_page_class_init(TemplateAppSettingsPageClass* 
 {
         G_OBJECT_CLASS(klass)->dispose = template_app_settings_page_dispose;
         gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(klass), APP_PREFIX "/settings_page.ui");
-        gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(klass), TemplateAppSettingsPage, back_button);
+        gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(klass), TemplateAppSettingsPage, close_settings_button);
         gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BIN_LAYOUT);
 }
 
