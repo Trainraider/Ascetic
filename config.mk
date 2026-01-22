@@ -34,9 +34,9 @@ RESOURCES    ?= $(DATA)/icon.svg
 #Dependencies
 PKG_CONFIG ?= pkg-config
 
-INCS = `$(PKG_CONFIG) --cflags gtk4 libadwaita-1 webkitgtk-6.0 liburiparser` \
+INCS = `$(PKG_CONFIG) --cflags gtk4 libadwaita-1 webkitgtk-6.0 ada libpsl` \
 
-LIBS = `$(PKG_CONFIG) --libs gtk4 libadwaita-1 webkitgtk-6.0 liburiparser` \
+LIBS = `$(PKG_CONFIG) --libs gtk4 libadwaita-1 webkitgtk-6.0 ada libpsl` \
 
 #Optional flags
 CFLAGS         ?= -march=native -pipe

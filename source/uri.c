@@ -1,7 +1,15 @@
 #include "uri.h"
+#include "defer.h"
+#include <ada_c.h>
 #include <glib-2.0/glib.h>
+#include <libpsl.h>
 #include <stdbool.h>
-#include <uriparser/Uri.h>
+
+#define ADA_HOST_TYPE_DEFAULT 0
+#define ADA_HOST_TYPE_IPV4 1
+#define ADA_HOST_TYPE_IPV6 2
+
+static psl_ctx_t* psl;
 
 bool uri_has_scheme(const char* uri)
 {
@@ -16,15 +24,63 @@ bool uri_has_scheme(const char* uri)
         return false;
 }
 
-bool uri_is_valid(const char* uri)
+void dada_free(void* ptr)
 {
-        UriUriA     parsed_uri;
-        const char* errorPos;
-        if (uriParseSingleUriA(&parsed_uri, uri, &errorPos) != URI_SUCCESS) {
-                return false;
+        void** p = (void**)ptr;
+        if (*p) {
+                ada_free(*p);
         }
-        uriFreeUriMembersA(&parsed_uri);
-        return true;
+}
+
+void dfree(void* ptr)
+{
+        void** p = (void**)ptr;
+        if (*p) {
+                free(*p);
+        }
+}
+
+bool uri_is_navigable(const char* uri)
+{
+        S_
+                ada_url url = ada_parse(uri, strlen(uri));
+                defer(dada_free, url);
+
+                if (!ada_is_valid(url)) {
+                        return false;
+                }
+
+                uint8_t host_type = ada_get_host_type(url);
+
+                if (host_type == ADA_HOST_TYPE_IPV4 || host_type == ADA_HOST_TYPE_IPV6) {
+                        return true;
+                }
+
+                ada_string hostname = ada_get_hostname(url);
+
+                char* hostname_str = malloc(hostname.length + 1);
+                defer(dfree, hostname_str);
+                memcpy(hostname_str, hostname.data, hostname.length);
+                hostname_str[hostname.length] = '\0';
+
+                if (!g_strcmp0(hostname_str, "localhost")) {
+                        return true;
+                }
+
+                const char* reg_domain = psl_registrable_domain(psl, hostname_str);
+
+                return reg_domain != NULL;
+        _S
+}
+
+void uri_init(void)
+{
+        psl = (psl_ctx_t*)psl_builtin();
+}
+
+void uri_cleanup(void)
+{
+        psl_free(psl);
 }
 
 ParsedUri uri_parse(const char* input)
@@ -32,27 +88,29 @@ ParsedUri uri_parse(const char* input)
         ParsedUri result = { 0 };
 
         if (!uri_has_scheme(input)) {
-                result.str  = g_strdup_printf("http://%s", input);
-                bool is_uri = uri_is_valid(result.str);
-                if (!is_uri) {
+                result.str        = g_strdup_printf("http://%s", input);
+                bool is_navigable = uri_is_navigable(result.str);
+
+                if (!is_navigable) {
                         g_free(result.str);
                         result.str = g_strdup(input);
                 }
-                result.is_uri = is_uri;
+                result.is_uri = is_navigable;
                 return result;
         }
+
         result.str    = g_strdup(input);
-        result.is_uri = uri_is_valid(result.str);
+        result.is_uri = uri_is_navigable(result.str);
         return result;
 }
 
-char* str_to_google_search_url(const char* query)
+char* str_to_brave_search_url(const char* query)
 {
         if (!query)
                 return NULL;
 
         char* encoded = g_uri_escape_string(query, NULL, false);
-        char* url     = g_strdup_printf("https://www.google.com/search?q=%s", encoded);
+        char* url     = g_strdup_printf("https://search.brave.com/search?q=%s", encoded);
         g_free(encoded);
 
         return url;
