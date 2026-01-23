@@ -132,7 +132,7 @@ void activate(GtkApplication* app, gpointer user_data)
         }
         g_object_unref(scope);
 
-        GtkWindow*    window     = GTK_WINDOW(BUILDER_GET_OBJECT(builder, AdwWindow, ADW_WINDOW, "window_main"));
+        AdwWindow*    window     = BUILDER_GET_OBJECT(builder, AdwWindow, ADW_WINDOW, "window_main");
         GtkStack*     stack_main = BUILDER_GET_OBJECT(builder, GtkStack, GTK_STACK, "stack_main");
         GtkStackPage* main_stack = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "main_page");
         GtkStackPage* main_page  = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "main_page");
@@ -158,8 +158,8 @@ void activate(GtkApplication* app, gpointer user_data)
         g_signal_connect(open_settings_button, "clicked", G_CALLBACK(on_open_settings_button_clicked), &open_settings_state);
         g_signal_connect(close_settings_button, "clicked", G_CALLBACK(on_close_settings_button_clicked), &back_to_main_state);
 
-        gtk_window_set_application(window, GTK_APPLICATION(app));
-        gtk_window_present(window);
+        gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
+        gtk_window_present(GTK_WINDOW(window));
 }
 
 int main(int argc, char* argv[])
