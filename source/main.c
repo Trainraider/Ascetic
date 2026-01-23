@@ -43,15 +43,6 @@ typedef struct
         char      text[32];
 } CounterLabel;
 
-typedef struct
-{
-        GtkStack*  stack;
-        GtkWidget* page;
-} StackState;
-
-static StackState open_settings_state;
-static StackState back_to_main_state;
-
 void on_back_button_clicked(GtkWidget* widget, gpointer user_data) {
         (void)widget;
         (void)user_data;
@@ -70,19 +61,28 @@ void on_refresh_button_clicked(GtkWidget* widget, gpointer user_data) {
         webkit_web_view_reload(web_view);
 }
 
+typedef struct
+{
+        GtkStack*  stack;
+        GtkWidget* page;
+} StackState;
+
+static StackState open_settings_state;
+static StackState back_to_main_state;
+
 void on_open_settings_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
-        GtkStack*  stack         = ((StackState*)user_data)->stack;
-        GtkWidget* settings_page = ((StackState*)user_data)->page;
+        GtkStack*  stack         = open_settings_state.stack;
+        GtkWidget* settings_page = open_settings_state.page;
         gtk_stack_set_visible_child(stack, settings_page);
 }
 
 void on_close_settings_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
-        GtkStack*  stack     = ((StackState*)user_data)->stack;
-        GtkWidget* main_page = ((StackState*)user_data)->page;
+        GtkStack*  stack     = back_to_main_state.stack;
+        GtkWidget* main_page = back_to_main_state.page;
         gtk_stack_set_visible_child(stack, main_page);
 }
 
@@ -120,6 +120,9 @@ void activate(GtkApplication* app, gpointer user_data)
         gtk_builder_cscope_add_callback(scope, load_url_from_entry);
         gtk_builder_cscope_add_callback(scope, on_back_button_clicked);
         gtk_builder_cscope_add_callback(scope, on_forward_button_clicked);
+        gtk_builder_cscope_add_callback(scope, on_refresh_button_clicked);
+        gtk_builder_cscope_add_callback(scope, on_open_settings_button_clicked);
+        gtk_builder_cscope_add_callback(scope, on_close_settings_button_clicked);
         webkit_web_view_get_type();
         builder = gtk_builder_new();
         gtk_builder_set_scope(builder, scope);
@@ -154,9 +157,6 @@ void activate(GtkApplication* app, gpointer user_data)
 
         back_to_main_state.stack = stack_main;
         back_to_main_state.page  = gtk_stack_page_get_child(main_page);
-
-        g_signal_connect(open_settings_button, "clicked", G_CALLBACK(on_open_settings_button_clicked), &open_settings_state);
-        g_signal_connect(close_settings_button, "clicked", G_CALLBACK(on_close_settings_button_clicked), &back_to_main_state);
 
         gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
         gtk_window_present(GTK_WINDOW(window));
