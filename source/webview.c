@@ -71,7 +71,7 @@ WebKitWebView* create_webview()
                     WEBKIT_COOKIE_PERSISTENT_STORAGE_SQLITE);
                 webkit_cookie_manager_set_accept_policy(
                     cookie_manager,
-                    WEBKIT_COOKIE_POLICY_ACCEPT_ALWAYS);
+                    WEBKIT_COOKIE_POLICY_ACCEPT_NO_THIRD_PARTY);
 
                 // Enable persistent credential storage
                 webkit_network_session_set_persistent_credential_storage_enabled(session, TRUE);
