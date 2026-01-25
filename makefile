@@ -24,8 +24,9 @@ endif
 BLD := $(shell readlink -f $(BLD))
 
 BIN           = $(BLD)/bin/$(TARGET)
-OBJ           = $(BLD)/main.o $(BLD)/uri.o $(BLD)/version.o $(BLD)/data.o $(BLD)/settings_page.o
-UI            = $(BLD)/window_main.ui $(BLD)/settings_page.ui
+OBJ           = $(BLD)/main.o $(BLD)/uri.o $(BLD)/version.o $(BLD)/data.o \
+                $(BLD)/settings_page.o $(BLD)/webview.o $(BLD)/binbox.o
+UI            = $(BLD)/window_main.ui $(BLD)/settings_page.ui $(BLD)/binbox.ui
 
 DESKTOP       = $(BLD)/$(TARGET).desktop
 
@@ -67,10 +68,12 @@ $(BLD)/%.o : $(SRC)/%.c | mkdirs
 	@$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 #Specific rules
-$(BLD)/main.o : $(SRC)/main.c $(SRC)/uri.h $(SRC)/version.h $(BLD)/data.h $(SRC)/settings_page.h | mkdirs
+$(BLD)/main.o : $(SRC)/main.c $(SRC)/uri.h $(SRC)/version.h $(BLD)/data.h $(SRC)/settings_page.h $(SRC)/webview.h $(SRC)/binbox.h | mkdirs
 $(BLD)/version.o : $(SRC)/version.c $(SRC)/version.h | mkdirs
 $(BLD)/data.o : $(BLD)/data.c $(BLD)/data.h | mkdirs
 $(BLD)/settings_page.o: $(SRC)/settings_page.c $(SRC)/settings_page.h | mkdirs
+$(BLD)/webview.o: $(SRC)/webview.c $(SRC)/webview.h | mkdirs
+$(BLD)/binbox.o: $(SRC)/binbox.c $(SRC)/binbox.h | mkdirs
 $(BLD)/uri.o : $(SRC)/uri.c $(SRC)/uri.h | mkdirs
 
 $(BLD)/data.c : $(BLD)/data.gresource.xml $(BLD)/window_main.ui $(RESOURCES) $(UI) | mkdirs
@@ -133,7 +136,7 @@ format :
 	AlignConsecutiveDeclarations: true, \
 	AlignConsecutiveAssignments: true, \
 	ReflowComments: true, \
-	SortIncludes: true, \
+	SortIncludes: false, \
 	MacroBlockBegin: 'S_', \
 	MacroBlockEnd: '_S'}" \
 	-i $(SRC)/*.{c,h}

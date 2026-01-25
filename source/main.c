@@ -1,27 +1,19 @@
 #include "data.h"
-#include "defer.h"
 #include "settings_page.h"
 #include "uri.h"
 #include "version.h"
+#include "webview.h"
 #include <adwaita.h>
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <webkit/webkit.h>
+#include "defer.h"
 
 static GtkBuilder*     builder;
 static AdwApplication* app;
 static WebKitWebView*  web_view;
-
-void dg_free(void* ptr)
-{
-        void** _ptr = (void**)ptr;
-        if (*_ptr) {
-                g_free(*_ptr);
-                *_ptr = NULL;
-        }
-}
 
 void check_gobject(GObject* obj, gchar* failure_msg)
 {
@@ -43,19 +35,22 @@ typedef struct
         char      text[32];
 } CounterLabel;
 
-void on_back_button_clicked(GtkWidget* widget, gpointer user_data) {
+void on_back_button_clicked(GtkWidget* widget, gpointer user_data)
+{
         (void)widget;
         (void)user_data;
         webkit_web_view_go_back(web_view);
 }
 
-void on_forward_button_clicked(GtkWidget* widget, gpointer user_data) {
+void on_forward_button_clicked(GtkWidget* widget, gpointer user_data)
+{
         (void)widget;
         (void)user_data;
         webkit_web_view_go_forward(web_view);
 }
 
-void on_refresh_button_clicked(GtkWidget* widget, gpointer user_data) {
+void on_refresh_button_clicked(GtkWidget* widget, gpointer user_data)
+{
         (void)widget;
         (void)user_data;
         webkit_web_view_reload(web_view);
@@ -123,7 +118,6 @@ void activate(GtkApplication* app, gpointer user_data)
         gtk_builder_cscope_add_callback(scope, on_refresh_button_clicked);
         gtk_builder_cscope_add_callback(scope, on_open_settings_button_clicked);
         gtk_builder_cscope_add_callback(scope, on_close_settings_button_clicked);
-        webkit_web_view_get_type();
         builder = gtk_builder_new();
         gtk_builder_set_scope(builder, scope);
         GError* error = NULL;
@@ -145,12 +139,14 @@ void activate(GtkApplication* app, gpointer user_data)
 
         GtkWidget* close_settings_button = template_app_settings_page_get_close_settings_button(TEMPLATE_APP_SETTINGS_PAGE(template));
         check_gobject(G_OBJECT(close_settings_button), "Error: Failed to get the close_settings_button.\n");
-        GtkWidget* open_settings_button = GTK_WIDGET(gtk_builder_get_object(builder, "open_settings_button"));
-        check_gobject(G_OBJECT(open_settings_button), "Error: Failed to get the open_settings_button.\n");
-
-        web_view = WEBKIT_WEB_VIEW(gtk_builder_get_object(builder, "web_view"));
-        check_gobject(G_OBJECT(web_view), "Error: Failed to get the web_view.\n");
+        GtkWidget* open_settings_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "open_settings_button");
+        web_view                        = create_webview();
+        GtkWidget* webview_box          = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "web_view_box");
+        gtk_widget_set_parent(GTK_WIDGET(web_view), webview_box);
+        // gtk_box_append(GTK_BOX(webview_box), GTK_WIDGET(web_view));
         webkit_web_view_load_uri(web_view, "https://search.brave.com/");
+        gtk_widget_grab_focus(GTK_WIDGET(web_view));
+        gtk_widget_set_visible(GTK_WIDGET(web_view), true);
 
         open_settings_state.stack = stack_main;
         open_settings_state.page  = gtk_stack_page_get_child(settings_page);

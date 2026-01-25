@@ -1,5 +1,5 @@
-#include "uri.h"
 #include "defer.h"
+#include "uri.h"
 #include <ada_c.h>
 #include <glib-2.0/glib.h>
 #include <libpsl.h>
@@ -29,14 +29,6 @@ void dada_free(void* ptr)
         void** p = (void**)ptr;
         if (*p) {
                 ada_free(*p);
-        }
-}
-
-void dfree(void* ptr)
-{
-        void** p = (void**)ptr;
-        if (*p) {
-                free(*p);
         }
 }
 

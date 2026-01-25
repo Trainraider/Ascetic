@@ -1,6 +1,5 @@
 using Gtk 4.0;
 using Adw 1;
-using WebKit 6.0;
 
 Adw.Window window_main {
   default-width: 800;
@@ -41,20 +40,9 @@ Adw.Window window_main {
     
     content: Stack stack_main {
       StackPage main_page {
-        child: Overlay {
-          [overlay]
-          Box {
-            halign: end;
-
-            Box {
-              orientation: vertical;
-            }
-          }
-
-          WebKit.WebView web_view {
-            hexpand: true;
-            vexpand: true;
-          }
+        child: $AsceticBinbox web_view_box {
+          hexpand: true;
+          vexpand: true;
         };
       }
 
