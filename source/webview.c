@@ -1,4 +1,5 @@
 #include <webkit/webkit.h>
+#include <stdio.h>
 #include "defer.h"
 
 nonlocal char* get_config_dir()
@@ -53,12 +54,29 @@ WebKitWebView* create_webview()
 {
         S_
                 local char* data_dir = get_data_dir();
-                defer(dfree, data_dir);
+                defer(dg_free, data_dir);
                 local char* cache_dir = get_cache_dir();
-                defer(dfree, cache_dir);
+                defer(dg_free, cache_dir);
                 WebKitNetworkSession* session = webkit_network_session_new(
                     data_dir,
-                    cache_dir);
+                    cache_dir
+                );
+                
+                // Configure cookie manager to persist cookies
+                WebKitCookieManager* cookie_manager = webkit_network_session_get_cookie_manager(session);
+                local char* cookie_file = g_build_filename(data_dir, "cookies.sqlite", NULL);
+                defer(dg_free, cookie_file);
+                webkit_cookie_manager_set_persistent_storage(
+                    cookie_manager,
+                    cookie_file,
+                    WEBKIT_COOKIE_PERSISTENT_STORAGE_SQLITE);
+                webkit_cookie_manager_set_accept_policy(
+                    cookie_manager,
+                    WEBKIT_COOKIE_POLICY_ACCEPT_ALWAYS);
+
+                // Enable persistent credential storage
+                webkit_network_session_set_persistent_credential_storage_enabled(session, TRUE);
+
                 WebKitWebContext* context  = webkit_web_context_get_default();
                 WebKitSettings*   settings = webkit_settings_new();
 
