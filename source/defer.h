@@ -5,6 +5,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Local thing must be freed here.
+#define local
+// Non-local thing usually freed elsewhere, or here on error.
+#define nonlocal
+// External thing not ever freed in user code.
+#define external
+
+#ifdef GLIB_MAJOR_VERSION
+static void dg_free(void* ptr)
+{
+        void** _ptr = (void**)ptr;
+        if (*_ptr) {
+                g_free(*_ptr);
+        }
+}
+
+static void dg_object_unref(void* ptr)
+{
+        GObject** _ptr = (GObject**)ptr;
+        if (*_ptr) {
+                g_object_unref(*_ptr);
+        }
+}
+#endif
+
+static void dfree(void* ptr)
+{
+        void** p = (void**)ptr;
+        if (*p) {
+                free(*p);
+        }
+}
+
 #define _CAT_IMPL(a, b) a##b
 #define _CAT(a, b) _CAT_IMPL(a, b)
 
