@@ -1,5 +1,4 @@
 #include <webkit/webkit.h>
-#include <stdio.h>
 #include "defer.h"
 
 nonlocal char* get_config_dir()

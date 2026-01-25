@@ -11,7 +11,6 @@ typedef struct {
 void      uri_init(void);
 void      uri_cleanup(void);
 bool      uri_has_scheme(const char* uri);
-bool      uri_is_valid(const char* uri);
 ParsedUri uri_parse(const char* input);
 char*     str_to_brave_search_url(const char* query);
 

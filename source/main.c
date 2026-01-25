@@ -28,13 +28,6 @@ void check_gobject(GObject* obj, gchar* failure_msg)
         exit(1);
 }
 
-typedef struct
-{
-        GtkLabel* label;
-        int       value;
-        char      text[32];
-} CounterLabel;
-
 void on_back_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
@@ -131,7 +124,6 @@ void activate(GtkApplication* app, gpointer user_data)
 
         AdwWindow*    window     = BUILDER_GET_OBJECT(builder, AdwWindow, ADW_WINDOW, "window_main");
         GtkStack*     stack_main = BUILDER_GET_OBJECT(builder, GtkStack, GTK_STACK, "stack_main");
-        GtkStackPage* main_stack = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "main_page");
         GtkStackPage* main_page  = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "main_page");
 
         GtkStackPage* settings_page = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "settings_page");
@@ -143,7 +135,6 @@ void activate(GtkApplication* app, gpointer user_data)
         web_view                        = create_webview();
         GtkWidget* webview_box          = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "web_view_box");
         gtk_widget_set_parent(GTK_WIDGET(web_view), webview_box);
-        // gtk_box_append(GTK_BOX(webview_box), GTK_WIDGET(web_view));
         webkit_web_view_load_uri(web_view, "https://search.brave.com/");
         gtk_widget_grab_focus(GTK_WIDGET(web_view));
         gtk_widget_set_visible(GTK_WIDGET(web_view), true);
