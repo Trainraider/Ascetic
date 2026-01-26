@@ -40,7 +40,11 @@ Adw.Window window_main {
     
     content: Stack stack_main {
       StackPage main_page {
-        child: $AsceticBinbox web_view_box {
+        child: Adw.ToolbarView web_view_box {
+          [top]
+          Adw.TabBar {
+            hexpand: true;
+          }
           hexpand: true;
           vexpand: true;
         };

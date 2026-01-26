@@ -134,7 +134,8 @@ void activate(GtkApplication* app, gpointer user_data)
         GtkWidget* open_settings_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "open_settings_button");
         web_view                        = create_webview();
         GtkWidget* webview_box          = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "web_view_box");
-        gtk_widget_set_parent(GTK_WIDGET(web_view), webview_box);
+        //gtk_widget_set_parent(GTK_WIDGET(web_view), webview_box);
+        adw_toolbar_view_set_content(ADW_TOOLBAR_VIEW(webview_box), GTK_WIDGET(web_view));
         webkit_web_view_load_uri(web_view, "https://search.brave.com/");
         gtk_widget_grab_focus(GTK_WIDGET(web_view));
         gtk_widget_set_visible(GTK_WIDGET(web_view), true);

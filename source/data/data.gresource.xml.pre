@@ -3,6 +3,5 @@
   <gresource prefix="__PREFIX__">
     <file>window_main.ui</file>
     <file>settings_page.ui</file>
-    <file>binbox.ui</file>
   </gresource>
 </gresources>
