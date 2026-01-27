@@ -59,6 +59,8 @@ nonlocal char* get_cache_dir()
 void browser_session_init(void)
 {
         S_
+                // null dirs are handled gracefully by webkit
+                // no error checking needed
                 local char* data_dir = get_data_dir();
                 defer(dg_free, data_dir);
                 local char* cache_dir = get_cache_dir();

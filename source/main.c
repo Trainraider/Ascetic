@@ -113,14 +113,18 @@ void on_tab_bar_visibility_changed(AdwTabBar* tab_bar, GParamSpec* pspec, gpoint
         GtkWidget* upper_new_tab_button = GTK_WIDGET(user_data);
         gboolean   tabs_revealed        = adw_tab_bar_get_tabs_revealed(tab_bar);
         if (tabs_revealed) {
-                // gtk_widget_set_visible(upper_new_tab_button, FALSE);
                 gtk_widget_set_opacity(upper_new_tab_button, 0.0);
                 gtk_widget_set_sensitive(upper_new_tab_button, FALSE);
         } else {
-                // gtk_widget_set_visible(upper_new_tab_button, TRUE);
                 gtk_widget_set_opacity(upper_new_tab_button, 1.0);
                 gtk_widget_set_sensitive(upper_new_tab_button, TRUE);
         }
+}
+
+void on_tab_page_attached (AdwTabView* self, AdwTabPage* page, gint position, gpointer user_data)
+{
+        (void)user_data;
+        adw_tab_view_set_selected_page(self, page);
 }
 
 #define BUILDER_GET_OBJECT(builder, type, TYPE, name)                             \
@@ -141,6 +145,7 @@ void activate(GtkApplication* app, gpointer user_data)
         gtk_builder_cscope_add_callback(scope, on_open_settings_button_clicked);
         gtk_builder_cscope_add_callback(scope, on_close_settings_button_clicked);
         gtk_builder_cscope_add_callback(scope, show_tab_overview);
+        gtk_builder_cscope_add_callback(scope, on_tab_page_attached);
         gtk_builder_cscope_add_callback(scope, new_tab);
         builder = gtk_builder_new();
         gtk_builder_set_scope(builder, scope);
