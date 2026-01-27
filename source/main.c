@@ -18,6 +18,8 @@ AdwTabOverview* tab_overview    = NULL;
 AdwTabBar*      tab_bar         = NULL;
 AdwTabView*     tab_view        = NULL;
 WebKitWebView*  active_web_view = NULL;
+GIcon*          new_tab_icon    = NULL;
+GtkEntry*       url_entry       = NULL;
 
 void check_gobject(GObject* obj, gchar* failure_msg)
 {
@@ -161,6 +163,7 @@ void activate(GtkApplication* app, gpointer user_data)
         tab_overview                    = BUILDER_GET_OBJECT(builder, AdwTabOverview, ADW_TAB_OVERVIEW, "web_tabs_overview");
         tab_bar                         = BUILDER_GET_OBJECT(builder, AdwTabBar, ADW_TAB_BAR, "web_tab_bar");
         tab_view                        = BUILDER_GET_OBJECT(builder, AdwTabView, ADW_TAB_VIEW, "web_view");
+        url_entry                       = BUILDER_GET_OBJECT(builder, GtkEntry, GTK_ENTRY, "url_entry");
         GtkWidget* upper_new_tab_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "upper_new_tab_button");
 
         GtkWidget* close_settings_button = template_app_settings_page_get_close_settings_button(TEMPLATE_APP_SETTINGS_PAGE(template));
@@ -194,13 +197,15 @@ int main(int argc, char* argv[])
 
         uri_init();
         browser_session_init();
-        app = adw_application_new(APP_ID, G_APPLICATION_DEFAULT_FLAGS);
+        new_tab_icon = g_themed_icon_new("xsi-applications-internet-symbolic");
+        app          = adw_application_new(APP_ID, G_APPLICATION_DEFAULT_FLAGS);
         g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
         int status = g_application_run(G_APPLICATION(app), argc, argv);
 
         if (builder)
                 g_object_unref(builder);
         g_object_unref(app);
+        g_object_unref(new_tab_icon);
         browser_session_cleanup();
         uri_cleanup();
 

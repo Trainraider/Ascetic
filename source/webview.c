@@ -106,6 +106,36 @@ WebKitWebView* create_webview(void)
         return webview;
 }
 
+void on_webview_title_changed(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data)
+{
+        (void)pspec;
+        AdwTabPage* tab   = ADW_TAB_PAGE(user_data);
+        const char* title = webkit_web_view_get_title(webview);
+        if (title) {
+                adw_tab_page_set_title(tab, title);
+        } else {
+                adw_tab_page_set_title(tab, "New Tab");
+        }
+}
+
+void on_webview_uri_changed(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data)
+{
+        (void)pspec;
+        AdwTabPage* tab          = ADW_TAB_PAGE(user_data);
+        AdwTabPage* selected_tab = adw_tab_view_get_selected_page(tab_view);
+        if (tab != selected_tab)
+                return;
+        if (gtk_widget_has_focus(GTK_WIDGET(url_entry)))
+                return;
+        const char*     uri          = webkit_web_view_get_uri(webview);
+        GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(url_entry);
+        if (uri) {
+                gtk_entry_buffer_set_text(entry_buffer, uri, -1);
+        } else {
+                gtk_entry_buffer_set_text(entry_buffer, "", -1);
+        }
+}
+
 AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
@@ -114,6 +144,9 @@ AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
         WebKitWebView* webview = create_webview();
         AdwTabPage*    tab     = adw_tab_view_append(tab_view, GTK_WIDGET(webview));
         adw_tab_page_set_title(tab, "New Tab");
+        adw_tab_page_set_icon(tab, new_tab_icon);
+        g_signal_connect(webview, "notify::title", G_CALLBACK(on_webview_title_changed), tab);
+        g_signal_connect(webview, "notify::uri", G_CALLBACK(on_webview_uri_changed), tab);
         return tab;
 }
 
@@ -123,6 +156,14 @@ void on_tab_changed(GObject* self, GParamSpec* pspec, gpointer user_data)
         (void)pspec;
         (void)user_data;
         active_web_view = tab_get_webview(adw_tab_view_get_selected_page(tab_view));
+        // update url entry
+        const char*     uri          = webkit_web_view_get_uri(active_web_view);
+        GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(url_entry);
+        if (uri) {
+                gtk_entry_buffer_set_text(entry_buffer, uri, -1);
+        } else {
+                gtk_entry_buffer_set_text(entry_buffer, "", -1);
+        }
 }
 
 WebKitWebView* tab_get_webview(AdwTabPage* tab)

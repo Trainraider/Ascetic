@@ -23,7 +23,7 @@ Adw.Window window_main {
         clicked => $on_refresh_button_clicked();
       }
       
-      title-widget: Entry {
+      title-widget: Entry url_entry{
         hexpand: true;
         input-purpose: url;
         input-hints: no_spellcheck;
@@ -61,7 +61,7 @@ Adw.Window window_main {
             Adw.TabBar web_tab_bar {
                 styles ["inline"]
                 view: web_view;
-                inverted: true;
+                inverted: false;
                 expand-tabs: false;
                 start-action-widget: Button tab_overview_button {
                   styles ["flat"]
