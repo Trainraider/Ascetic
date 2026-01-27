@@ -93,18 +93,30 @@ void browser_session_cleanup(void)
         g_object_unref(browser_session.session);
 }
 
-WebKitWebView* create_webview(void)
+WebKitWebView* create_webview(WebKitWebView* related_view)
 {
-        WebKitWebView* webview = WEBKIT_WEB_VIEW(g_object_new(
-            WEBKIT_TYPE_WEB_VIEW,
-            "network-session", browser_session.session,
-            "web-context", browser_session.context,
-            "settings", browser_session.settings,
-            "hexpand", TRUE,
-            "vexpand", TRUE,
-            NULL));
+        WebKitWebView* webview;
+        if (related_view) {
+                webview = WEBKIT_WEB_VIEW(g_object_new(
+                    WEBKIT_TYPE_WEB_VIEW,
+                    "settings", browser_session.settings,
+                    "related-view", related_view,
+                    "hexpand", TRUE,
+                    "vexpand", TRUE,
+                    NULL));
+        } else {
+                webview = WEBKIT_WEB_VIEW(g_object_new(
+                    WEBKIT_TYPE_WEB_VIEW,
+                    "network-session", browser_session.session,
+                    "web-context", browser_session.context,
+                    "settings", browser_session.settings,
+                    "hexpand", TRUE,
+                    "vexpand", TRUE,
+                    NULL));
+        }
 
         webkit_web_view_set_background_color(webview, &((GdkRGBA) { 0.1, 0.1, 0.1, 1.0 }));
+        g_signal_connect(webview, "create", G_CALLBACK(on_create_web_view), NULL);
         return webview;
 }
 
@@ -140,16 +152,30 @@ void on_webview_uri_changed(WebKitWebView* webview, GParamSpec* pspec, gpointer 
 
 AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
 {
-        (void)widget;
         (void)user_data;
+        WebKitWebView* related_webview = NULL;
 
-        WebKitWebView* webview = create_webview();
+        if (G_TYPE_CHECK_INSTANCE_TYPE(widget, WEBKIT_TYPE_WEB_VIEW)) {
+                related_webview = WEBKIT_WEB_VIEW(widget);
+        }
+        WebKitWebView* webview = create_webview(related_webview);
         AdwTabPage*    tab     = adw_tab_view_append(tab_view, GTK_WIDGET(webview));
         adw_tab_page_set_title(tab, "New Tab");
         adw_tab_page_set_icon(tab, new_tab_icon);
         g_signal_connect(webview, "notify::title", G_CALLBACK(on_webview_title_changed), tab);
         g_signal_connect(webview, "notify::uri", G_CALLBACK(on_webview_uri_changed), tab);
+        if (G_TYPE_CHECK_INSTANCE_TYPE(widget, GTK_TYPE_BUTTON)) {
+                gtk_widget_grab_focus(GTK_WIDGET(url_entry));
+        }
         return tab;
+}
+
+WebKitWebView* on_create_web_view(WebKitWebView* webview, WebKitNavigationAction* navigation_action, gpointer user_data)
+{
+        (void)navigation_action;
+        (void)user_data;
+        AdwTabPage* tab = new_tab(GTK_WIDGET(webview), NULL);
+        return tab_get_webview(tab);
 }
 
 void on_tab_changed(GObject* self, GParamSpec* pspec, gpointer user_data)
