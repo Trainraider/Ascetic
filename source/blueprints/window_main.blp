@@ -32,9 +32,19 @@ Adw.Window window_main {
       };
       
       [end]
-      Button open_settings_button {
-        icon-name: "menu_new-symbolic";
-        clicked => $on_open_settings_button_clicked();
+      Box {
+        Button upper_new_tab_button {
+          icon-name: "gtk-add-symbolic";
+          clicked => $new_tab();
+        }
+        orientation: horizontal;
+        Button open_settings_button {
+          icon-name: "menu_new-symbolic";
+          clicked => $on_open_settings_button_clicked();
+        }
+        Separator {
+          styles ["spacer"]
+        }
       }
     }
     
@@ -43,18 +53,23 @@ Adw.Window window_main {
         child: Adw.TabOverview web_tabs_overview {
           enable-new-tab: true;
           view: web_view;
+          show-start-title-buttons: false;
+          show-end-title-buttons: false;
           create-tab => $new_tab();
           Box {
             orientation: vertical;
-            Adw.TabBar {
+            Adw.TabBar web_tab_bar {
+                styles ["inline"]
                 view: web_view;
-                autohide: false;
+                inverted: true;
                 expand-tabs: false;
                 start-action-widget: Button tab_overview_button {
+                  styles ["flat"]
                   icon-name: "xsi-view-grid-symbolic";
                   clicked => $show_tab_overview();
                 };
                 end-action-widget: Button new_tab_button {
+                  styles ["flat"]
                   icon-name: "gtk-add-symbolic";
                   clicked => $new_tab();
                 };

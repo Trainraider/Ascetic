@@ -6,7 +6,7 @@ static struct {
         WebKitNetworkSession* session;
         WebKitWebContext*     context;
         WebKitSettings*       settings;
-} browser_session = {0};
+} browser_session = { 0 };
 
 nonlocal char* get_config_dir()
 {
@@ -66,20 +66,19 @@ void browser_session_init(void)
 
                 browser_session.session = webkit_network_session_new(data_dir, cache_dir);
 
-                WebKitCookieManager* cookie_manager = 
-                        webkit_network_session_get_cookie_manager(browser_session.session);
-                local char* cookie_file = g_build_filename(data_dir, "cookies.sqlite", NULL);
+                WebKitCookieManager* cookie_manager = webkit_network_session_get_cookie_manager(browser_session.session);
+                local char*          cookie_file    = g_build_filename(data_dir, "cookies.sqlite", NULL);
                 defer(dg_free, cookie_file);
                 webkit_cookie_manager_set_persistent_storage(
-                        cookie_manager,
-                        cookie_file,
-                        WEBKIT_COOKIE_PERSISTENT_STORAGE_SQLITE);
+                    cookie_manager,
+                    cookie_file,
+                    WEBKIT_COOKIE_PERSISTENT_STORAGE_SQLITE);
                 webkit_cookie_manager_set_accept_policy(
-                        cookie_manager,
-                        WEBKIT_COOKIE_POLICY_ACCEPT_NO_THIRD_PARTY);
+                    cookie_manager,
+                    WEBKIT_COOKIE_POLICY_ACCEPT_NO_THIRD_PARTY);
 
                 webkit_network_session_set_persistent_credential_storage_enabled(
-                        browser_session.session, TRUE);
+                    browser_session.session, TRUE);
 
                 browser_session.context  = webkit_web_context_get_default();
                 browser_session.settings = webkit_settings_new();
@@ -88,21 +87,22 @@ void browser_session_init(void)
 
 void browser_session_cleanup(void)
 {
-                g_object_unref(browser_session.settings);
-                g_object_unref(browser_session.session);
+        g_object_unref(browser_session.settings);
+        g_object_unref(browser_session.session);
 }
 
 WebKitWebView* create_webview(void)
 {
         WebKitWebView* webview = WEBKIT_WEB_VIEW(g_object_new(
-                WEBKIT_TYPE_WEB_VIEW,
-                "network-session", browser_session.session,
-                "web-context", browser_session.context,
-                "settings", browser_session.settings,
-                "hexpand", TRUE,
-                "vexpand", TRUE,
-                NULL));
+            WEBKIT_TYPE_WEB_VIEW,
+            "network-session", browser_session.session,
+            "web-context", browser_session.context,
+            "settings", browser_session.settings,
+            "hexpand", TRUE,
+            "vexpand", TRUE,
+            NULL));
 
+        webkit_web_view_set_background_color(webview, &((GdkRGBA) { 0.1, 0.1, 0.1, 1.0 }));
         return webview;
 }
 
@@ -110,9 +110,9 @@ AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
         (void)user_data;
-        
+
         WebKitWebView* webview = create_webview();
-        AdwTabPage* tab = adw_tab_view_append(tab_view, GTK_WIDGET(webview));
+        AdwTabPage*    tab     = adw_tab_view_append(tab_view, GTK_WIDGET(webview));
         adw_tab_page_set_title(tab, "New Tab");
         return tab;
 }

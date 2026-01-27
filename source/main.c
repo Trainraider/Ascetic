@@ -12,10 +12,11 @@
 #include "defer.h"
 #include "globals.h"
 
-GtkBuilder*     builder = NULL;
-AdwApplication* app = NULL;
-AdwTabOverview* tab_overview = NULL;
-AdwTabView*     tab_view = NULL;
+GtkBuilder*     builder         = NULL;
+AdwApplication* app             = NULL;
+AdwTabOverview* tab_overview    = NULL;
+AdwTabBar*      tab_bar         = NULL;
+AdwTabView*     tab_view        = NULL;
 WebKitWebView*  active_web_view = NULL;
 
 void check_gobject(GObject* obj, gchar* failure_msg)
@@ -104,6 +105,22 @@ void load_url_from_entry(GtkWidget* entry, gpointer user_data)
         _S
 }
 
+void on_tab_bar_visibility_changed(AdwTabBar* tab_bar, GParamSpec* pspec, gpointer user_data)
+{
+        (void)pspec;
+        GtkWidget* upper_new_tab_button = GTK_WIDGET(user_data);
+        gboolean   tabs_revealed        = adw_tab_bar_get_tabs_revealed(tab_bar);
+        if (tabs_revealed) {
+                // gtk_widget_set_visible(upper_new_tab_button, FALSE);
+                gtk_widget_set_opacity(upper_new_tab_button, 0.0);
+                gtk_widget_set_sensitive(upper_new_tab_button, FALSE);
+        } else {
+                // gtk_widget_set_visible(upper_new_tab_button, TRUE);
+                gtk_widget_set_opacity(upper_new_tab_button, 1.0);
+                gtk_widget_set_sensitive(upper_new_tab_button, TRUE);
+        }
+}
+
 #define BUILDER_GET_OBJECT(builder, type, TYPE, name)                             \
         ({                                                                        \
                 type* obj = TYPE(gtk_builder_get_object(builder, name));          \
@@ -141,18 +158,21 @@ void activate(GtkApplication* app, gpointer user_data)
         GtkStackPage* settings_page = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "settings_page");
         GtkWidget*    template      = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "settings_page_template");
 
-        tab_overview = BUILDER_GET_OBJECT(builder, AdwTabOverview, ADW_TAB_OVERVIEW, "web_tabs_overview");
-        tab_view     = BUILDER_GET_OBJECT(builder, AdwTabView, ADW_TAB_VIEW, "web_view");
+        tab_overview                    = BUILDER_GET_OBJECT(builder, AdwTabOverview, ADW_TAB_OVERVIEW, "web_tabs_overview");
+        tab_bar                         = BUILDER_GET_OBJECT(builder, AdwTabBar, ADW_TAB_BAR, "web_tab_bar");
+        tab_view                        = BUILDER_GET_OBJECT(builder, AdwTabView, ADW_TAB_VIEW, "web_view");
+        GtkWidget* upper_new_tab_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "upper_new_tab_button");
 
         GtkWidget* close_settings_button = template_app_settings_page_get_close_settings_button(TEMPLATE_APP_SETTINGS_PAGE(template));
         check_gobject(G_OBJECT(close_settings_button), "Error: Failed to get the close_settings_button.\n");
         GtkWidget* open_settings_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "open_settings_button");
 
-        AdwTabPage* tab = new_tab(NULL, NULL);
+        AdwTabPage*    tab     = new_tab(NULL, NULL);
         WebKitWebView* webview = tab_get_webview(tab);
         webkit_web_view_load_uri(webview, "https://search.brave.com");
         active_web_view = webview;
 
+        g_signal_connect(tab_bar, "notify::tabs-revealed", G_CALLBACK(on_tab_bar_visibility_changed), upper_new_tab_button);
         g_signal_connect(tab_view, "notify::selected-page", G_CALLBACK(on_tab_changed), NULL);
 
         open_settings_state.stack = stack_main;

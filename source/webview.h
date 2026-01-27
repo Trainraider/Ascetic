@@ -12,8 +12,8 @@ void browser_session_init(void);
 void browser_session_cleanup(void);
 
 WebKitWebView* create_webview(void);
-AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data);
-void on_tab_changed(GObject* self, GParamSpec* pspec, gpointer user_data);
+AdwTabPage*    new_tab(GtkWidget* widget, gpointer user_data);
+void           on_tab_changed(GObject* self, GParamSpec* pspec, gpointer user_data);
 WebKitWebView* tab_get_webview(AdwTabPage* tab);
 
 #endif // WEBVIEW_H

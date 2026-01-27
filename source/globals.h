@@ -6,4 +6,5 @@ extern GtkBuilder*     builder;
 extern AdwApplication* app;
 extern AdwTabOverview* tab_overview;
 extern AdwTabView*     tab_view;
+extern AdwTabBar*      tab_bar;
 extern WebKitWebView*  active_web_view;
