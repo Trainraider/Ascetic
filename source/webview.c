@@ -183,7 +183,14 @@ void on_tab_changed(GObject* self, GParamSpec* pspec, gpointer user_data)
         (void)self;
         (void)pspec;
         (void)user_data;
-        active_web_view = tab_get_webview(adw_tab_view_get_selected_page(tab_view));
+        AdwTabPage* selected_page = adw_tab_view_get_selected_page(tab_view);
+        if (!selected_page) {
+                active_web_view = NULL;
+                GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(url_entry);
+                gtk_entry_buffer_set_text(entry_buffer, "", -1);
+                return;
+        }
+        active_web_view = tab_get_webview(selected_page);
         // update url entry
         const char*     uri          = webkit_web_view_get_uri(active_web_view);
         GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(url_entry);

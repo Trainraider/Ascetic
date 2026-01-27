@@ -45,21 +45,24 @@ void on_back_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
         (void)user_data;
-        webkit_web_view_go_back(active_web_view);
+        if (active_web_view)
+                webkit_web_view_go_back(active_web_view);
 }
 
 void on_forward_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
         (void)user_data;
-        webkit_web_view_go_forward(active_web_view);
+        if (active_web_view)
+                webkit_web_view_go_forward(active_web_view);
 }
 
 void on_refresh_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
         (void)user_data;
-        webkit_web_view_reload(active_web_view);
+        if (active_web_view)
+                webkit_web_view_reload(active_web_view);
 }
 
 typedef struct
@@ -91,6 +94,8 @@ void load_url_from_entry(GtkWidget* entry, gpointer user_data)
 {
         S_(void)
                 user_data;
+                if (!active_web_view)
+                        return;
                 const char* url        = gtk_editable_get_text(GTK_EDITABLE(entry));
                 ParsedUri   parsed_uri = uri_parse(url);
                 defer(dg_free, parsed_uri.str);
