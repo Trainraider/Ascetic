@@ -68,11 +68,11 @@ $(BLD)/%.o : $(SRC)/%.c | mkdirs
 	@$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 #Specific rules
-$(BLD)/main.o : $(SRC)/main.c $(SRC)/uri.h $(SRC)/version.h $(BLD)/data.h $(SRC)/settings_page.h $(SRC)/webview.h | mkdirs
+$(BLD)/main.o : $(SRC)/main.c $(SRC)/uri.h $(SRC)/version.h $(BLD)/data.h $(SRC)/settings_page.h $(SRC)/webview.h $(SRC)/globals.h | mkdirs
 $(BLD)/version.o : $(SRC)/version.c $(SRC)/version.h | mkdirs
 $(BLD)/data.o : $(BLD)/data.c $(BLD)/data.h | mkdirs
 $(BLD)/settings_page.o: $(SRC)/settings_page.c $(SRC)/settings_page.h | mkdirs
-$(BLD)/webview.o: $(SRC)/webview.c $(SRC)/webview.h | mkdirs
+$(BLD)/webview.o: $(SRC)/webview.c $(SRC)/webview.h $(SRC)/globals.h | mkdirs
 $(BLD)/uri.o : $(SRC)/uri.c $(SRC)/uri.h | mkdirs
 
 $(BLD)/data.c : $(BLD)/data.gresource.xml $(BLD)/window_main.ui $(RESOURCES) $(UI) | mkdirs

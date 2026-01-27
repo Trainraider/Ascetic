@@ -1,5 +1,12 @@
-#include <webkit/webkit.h>
+#include "webview.h"
 #include "defer.h"
+
+// Singleton for shared browser session components
+static struct {
+        WebKitNetworkSession* session;
+        WebKitWebContext*     context;
+        WebKitSettings*       settings;
+} browser_session = {0};
 
 nonlocal char* get_config_dir()
 {
@@ -49,43 +56,76 @@ nonlocal char* get_cache_dir()
         _S
 }
 
-WebKitWebView* create_webview()
+void browser_session_init(void)
 {
         S_
                 local char* data_dir = get_data_dir();
                 defer(dg_free, data_dir);
                 local char* cache_dir = get_cache_dir();
                 defer(dg_free, cache_dir);
-                WebKitNetworkSession* session = webkit_network_session_new(
-                    data_dir,
-                    cache_dir
-                );
-                
-                // Configure cookie manager to persist cookies
-                WebKitCookieManager* cookie_manager = webkit_network_session_get_cookie_manager(session);
+
+                browser_session.session = webkit_network_session_new(data_dir, cache_dir);
+
+                WebKitCookieManager* cookie_manager = 
+                        webkit_network_session_get_cookie_manager(browser_session.session);
                 local char* cookie_file = g_build_filename(data_dir, "cookies.sqlite", NULL);
                 defer(dg_free, cookie_file);
                 webkit_cookie_manager_set_persistent_storage(
-                    cookie_manager,
-                    cookie_file,
-                    WEBKIT_COOKIE_PERSISTENT_STORAGE_SQLITE);
+                        cookie_manager,
+                        cookie_file,
+                        WEBKIT_COOKIE_PERSISTENT_STORAGE_SQLITE);
                 webkit_cookie_manager_set_accept_policy(
-                    cookie_manager,
-                    WEBKIT_COOKIE_POLICY_ACCEPT_NO_THIRD_PARTY);
+                        cookie_manager,
+                        WEBKIT_COOKIE_POLICY_ACCEPT_NO_THIRD_PARTY);
 
-                // Enable persistent credential storage
-                webkit_network_session_set_persistent_credential_storage_enabled(session, TRUE);
+                webkit_network_session_set_persistent_credential_storage_enabled(
+                        browser_session.session, TRUE);
 
-                WebKitWebContext* context  = webkit_web_context_get_default();
-                WebKitSettings*   settings = webkit_settings_new();
-
-                WebKitWebView* webview = WEBKIT_WEB_VIEW(g_object_new(
-                    WEBKIT_TYPE_WEB_VIEW,
-                    "network-session", session,
-                    "web-context", context,
-                    "settings", settings,
-                    NULL));
-
-                return webview;
+                browser_session.context  = webkit_web_context_get_default();
+                browser_session.settings = webkit_settings_new();
         _S
+}
+
+void browser_session_cleanup(void)
+{
+                g_object_unref(browser_session.settings);
+                g_object_unref(browser_session.session);
+}
+
+WebKitWebView* create_webview(void)
+{
+        WebKitWebView* webview = WEBKIT_WEB_VIEW(g_object_new(
+                WEBKIT_TYPE_WEB_VIEW,
+                "network-session", browser_session.session,
+                "web-context", browser_session.context,
+                "settings", browser_session.settings,
+                "hexpand", TRUE,
+                "vexpand", TRUE,
+                NULL));
+
+        return webview;
+}
+
+AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
+{
+        (void)widget;
+        (void)user_data;
+        
+        WebKitWebView* webview = create_webview();
+        AdwTabPage* tab = adw_tab_view_append(tab_view, GTK_WIDGET(webview));
+        adw_tab_page_set_title(tab, "New Tab");
+        return tab;
+}
+
+void on_tab_changed(GObject* self, GParamSpec* pspec, gpointer user_data)
+{
+        (void)self;
+        (void)pspec;
+        (void)user_data;
+        active_web_view = tab_get_webview(adw_tab_view_get_selected_page(tab_view));
+}
+
+WebKitWebView* tab_get_webview(AdwTabPage* tab)
+{
+        return WEBKIT_WEB_VIEW(adw_tab_page_get_child(tab));
 }

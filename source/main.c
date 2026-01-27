@@ -10,10 +10,13 @@
 #include <string.h>
 #include <webkit/webkit.h>
 #include "defer.h"
+#include "globals.h"
 
-static GtkBuilder*     builder;
-static AdwApplication* app;
-static WebKitWebView*  web_view;
+GtkBuilder*     builder = NULL;
+AdwApplication* app = NULL;
+AdwTabOverview* tab_overview = NULL;
+AdwTabView*     tab_view = NULL;
+WebKitWebView*  active_web_view = NULL;
 
 void check_gobject(GObject* obj, gchar* failure_msg)
 {
@@ -28,25 +31,32 @@ void check_gobject(GObject* obj, gchar* failure_msg)
         exit(1);
 }
 
+void show_tab_overview(GtkWidget* widget, gpointer user_data)
+{
+        (void)widget;
+        (void)user_data;
+        adw_tab_overview_set_open(tab_overview, TRUE);
+}
+
 void on_back_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
         (void)user_data;
-        webkit_web_view_go_back(web_view);
+        webkit_web_view_go_back(active_web_view);
 }
 
 void on_forward_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
         (void)user_data;
-        webkit_web_view_go_forward(web_view);
+        webkit_web_view_go_forward(active_web_view);
 }
 
 void on_refresh_button_clicked(GtkWidget* widget, gpointer user_data)
 {
         (void)widget;
         (void)user_data;
-        webkit_web_view_reload(web_view);
+        webkit_web_view_reload(active_web_view);
 }
 
 typedef struct
@@ -83,12 +93,12 @@ void load_url_from_entry(GtkWidget* entry, gpointer user_data)
                 defer(dg_free, parsed_uri.str);
                 gtk_editable_set_text(GTK_EDITABLE(entry), parsed_uri.str);
                 if (parsed_uri.is_uri) {
-                        webkit_web_view_load_uri(web_view, parsed_uri.str);
+                        webkit_web_view_load_uri(active_web_view, parsed_uri.str);
                 } else {
                         S_
                                 char* search_url = str_to_brave_search_url(parsed_uri.str);
                                 defer(dg_free, search_url);
-                                webkit_web_view_load_uri(web_view, search_url);
+                                webkit_web_view_load_uri(active_web_view, search_url);
                         _S
                 }
         _S
@@ -111,6 +121,8 @@ void activate(GtkApplication* app, gpointer user_data)
         gtk_builder_cscope_add_callback(scope, on_refresh_button_clicked);
         gtk_builder_cscope_add_callback(scope, on_open_settings_button_clicked);
         gtk_builder_cscope_add_callback(scope, on_close_settings_button_clicked);
+        gtk_builder_cscope_add_callback(scope, show_tab_overview);
+        gtk_builder_cscope_add_callback(scope, new_tab);
         builder = gtk_builder_new();
         gtk_builder_set_scope(builder, scope);
         GError* error = NULL;
@@ -129,16 +141,19 @@ void activate(GtkApplication* app, gpointer user_data)
         GtkStackPage* settings_page = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "settings_page");
         GtkWidget*    template      = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "settings_page_template");
 
+        tab_overview = BUILDER_GET_OBJECT(builder, AdwTabOverview, ADW_TAB_OVERVIEW, "web_tabs_overview");
+        tab_view     = BUILDER_GET_OBJECT(builder, AdwTabView, ADW_TAB_VIEW, "web_view");
+
         GtkWidget* close_settings_button = template_app_settings_page_get_close_settings_button(TEMPLATE_APP_SETTINGS_PAGE(template));
         check_gobject(G_OBJECT(close_settings_button), "Error: Failed to get the close_settings_button.\n");
         GtkWidget* open_settings_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "open_settings_button");
-        web_view                        = create_webview();
-        GtkWidget* webview_box          = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "web_view_box");
-        //gtk_widget_set_parent(GTK_WIDGET(web_view), webview_box);
-        adw_toolbar_view_set_content(ADW_TOOLBAR_VIEW(webview_box), GTK_WIDGET(web_view));
-        webkit_web_view_load_uri(web_view, "https://search.brave.com/");
-        gtk_widget_grab_focus(GTK_WIDGET(web_view));
-        gtk_widget_set_visible(GTK_WIDGET(web_view), true);
+
+        AdwTabPage* tab = new_tab(NULL, NULL);
+        WebKitWebView* webview = tab_get_webview(tab);
+        webkit_web_view_load_uri(webview, "https://search.brave.com");
+        active_web_view = webview;
+
+        g_signal_connect(tab_view, "notify::selected-page", G_CALLBACK(on_tab_changed), NULL);
 
         open_settings_state.stack = stack_main;
         open_settings_state.page  = gtk_stack_page_get_child(settings_page);
@@ -158,6 +173,7 @@ int main(int argc, char* argv[])
         }
 
         uri_init();
+        browser_session_init();
         app = adw_application_new(APP_ID, G_APPLICATION_DEFAULT_FLAGS);
         g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
         int status = g_application_run(G_APPLICATION(app), argc, argv);
@@ -165,6 +181,7 @@ int main(int argc, char* argv[])
         if (builder)
                 g_object_unref(builder);
         g_object_unref(app);
+        browser_session_cleanup();
         uri_cleanup();
 
         return status;
