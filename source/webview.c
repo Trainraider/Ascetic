@@ -199,7 +199,7 @@ void on_tab_changed(GObject* self, GParamSpec* pspec, gpointer user_data)
         (void)user_data;
         AdwTabPage* selected_page = adw_tab_view_get_selected_page(tab_view);
         if (!selected_page) {
-                active_web_view = NULL;
+                active_web_view              = NULL;
                 GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(url_entry);
                 gtk_entry_buffer_set_text(entry_buffer, "", -1);
                 return;

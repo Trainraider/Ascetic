@@ -129,7 +129,7 @@ void on_tab_bar_visibility_changed(AdwTabBar* tab_bar, GParamSpec* pspec, gpoint
         }
 }
 
-void on_tab_page_attached (AdwTabView* self, AdwTabPage* page, gint position, gpointer user_data)
+void on_tab_page_attached(AdwTabView* self, AdwTabPage* page, gint position, gpointer user_data)
 {
         (void)user_data;
         adw_tab_view_set_selected_page(self, page);
@@ -166,9 +166,9 @@ void activate(GtkApplication* app, gpointer user_data)
         }
         g_object_unref(scope);
 
-        AdwWindow*    window     = BUILDER_GET_OBJECT(builder, AdwWindow, ADW_WINDOW, "window_main");
-        GtkStack*     stack_main = BUILDER_GET_OBJECT(builder, GtkStack, GTK_STACK, "stack_main");
-        GtkStackPage* main_page  = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "main_page");
+        AdwApplicationWindow* window     = BUILDER_GET_OBJECT(builder, AdwApplicationWindow, ADW_APPLICATION_WINDOW, "window_main");
+        GtkStack*             stack_main = BUILDER_GET_OBJECT(builder, GtkStack, GTK_STACK, "stack_main");
+        GtkStackPage*         main_page  = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "main_page");
 
         GtkStackPage* settings_page = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "settings_page");
         GtkWidget*    template      = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "settings_page_template");

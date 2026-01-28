@@ -31,7 +31,7 @@ static void ascetic_settings_page_init(AsceticSettingsPage* self)
 static void ascetic_settings_page_dispose(GObject* object)
 {
         AsceticSettingsPage* self  = ASCETIC_SETTINGS_PAGE(object);
-        GtkWidget*               child = gtk_widget_get_first_child(GTK_WIDGET(self));
+        GtkWidget*           child = gtk_widget_get_first_child(GTK_WIDGET(self));
         if (child) {
                 gtk_widget_unparent(child);
         }
