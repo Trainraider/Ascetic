@@ -12,14 +12,15 @@
 #include "defer.h"
 #include "globals.h"
 
-GtkBuilder*     builder         = NULL;
-AdwApplication* app             = NULL;
-AdwTabOverview* tab_overview    = NULL;
-AdwTabBar*      tab_bar         = NULL;
-AdwTabView*     tab_view        = NULL;
-WebKitWebView*  active_web_view = NULL;
-GIcon*          new_tab_icon    = NULL;
-GtkEntry*       url_entry       = NULL;
+GtkBuilder*     builder               = NULL;
+AdwApplication* app                   = NULL;
+AdwTabOverview* tab_overview          = NULL;
+AdwTabBar*      tab_bar               = NULL;
+AdwTabView*     tab_view              = NULL;
+WebKitWebView*  active_web_view       = NULL;
+GIcon*          new_tab_icon          = NULL;
+GtkEntry*       url_entry             = NULL;
+GtkRevealer*    revealer_main_toolbar = NULL;
 
 void check_gobject(GObject* obj, gchar* failure_msg)
 {
@@ -176,6 +177,7 @@ void activate(GtkApplication* app, gpointer user_data)
         tab_bar                         = BUILDER_GET_OBJECT(builder, AdwTabBar, ADW_TAB_BAR, "web_tab_bar");
         tab_view                        = BUILDER_GET_OBJECT(builder, AdwTabView, ADW_TAB_VIEW, "web_view");
         url_entry                       = BUILDER_GET_OBJECT(builder, GtkEntry, GTK_ENTRY, "url_entry");
+        revealer_main_toolbar           = BUILDER_GET_OBJECT(builder, GtkRevealer, GTK_REVEALER, "revealer_main_toolbar");
         GtkWidget* upper_new_tab_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "upper_new_tab_button");
 
         GtkWidget* close_settings_button = template_app_settings_page_get_close_settings_button(TEMPLATE_APP_SETTINGS_PAGE(template));

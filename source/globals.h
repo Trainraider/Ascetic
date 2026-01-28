@@ -10,3 +10,4 @@ extern AdwTabBar*      tab_bar;
 extern WebKitWebView*  active_web_view;
 extern GIcon*          new_tab_icon;
 extern GtkEntry*       url_entry;
+extern GtkRevealer*    revealer_main_toolbar;

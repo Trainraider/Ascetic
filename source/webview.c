@@ -150,6 +150,18 @@ void on_webview_uri_changed(WebKitWebView* webview, GParamSpec* pspec, gpointer 
         }
 }
 
+void on_webview_enter_fullscreen(WebKitWebView* webview, gpointer user_data)
+{
+        (void)user_data;
+        gtk_revealer_set_reveal_child(revealer_main_toolbar, FALSE);
+}
+
+void on_webview_leave_fullscreen(WebKitWebView* webview, gpointer user_data)
+{
+        (void)user_data;
+        gtk_revealer_set_reveal_child(revealer_main_toolbar, TRUE);
+}
+
 AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
 {
         (void)user_data;
@@ -164,6 +176,8 @@ AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
         adw_tab_page_set_icon(tab, new_tab_icon);
         g_signal_connect(webview, "notify::title", G_CALLBACK(on_webview_title_changed), tab);
         g_signal_connect(webview, "notify::uri", G_CALLBACK(on_webview_uri_changed), tab);
+        g_signal_connect(webview, "enter-fullscreen", G_CALLBACK(on_webview_enter_fullscreen), NULL);
+        g_signal_connect(webview, "leave-fullscreen", G_CALLBACK(on_webview_leave_fullscreen), NULL);
         if (G_TYPE_CHECK_INSTANCE_TYPE(widget, GTK_TYPE_BUTTON)) {
                 gtk_widget_grab_focus(GTK_WIDGET(url_entry));
         }

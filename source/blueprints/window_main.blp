@@ -9,80 +9,86 @@ Adw.Window window_main {
   content: Box {
     orientation: vertical;
 
-    Adw.ToolbarView {
-      [top]
-      Adw.HeaderBar {
-        [start]
-        Button {
-          icon-name: "go-previous-symbolic";
-          clicked => $on_back_button_clicked();
+    Revealer revealer_main_toolbar {
+      transition-type: slide_down;
+      transition-duration: 200;
+      reveal-child: true;
+
+      child: Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {
+          [start]
+          Button {
+            icon-name: "go-previous-symbolic";
+            clicked => $on_back_button_clicked();
+          }
+
+          Button {
+            icon-name: "go-next-symbolic";
+            clicked => $on_forward_button_clicked();
+          }
+
+          Button {
+            icon-name: "view-refresh-symbolic";
+            clicked => $on_refresh_button_clicked();
+          }
+
+          title-widget: Entry url_entry {
+            hexpand: true;
+            input-purpose: url;
+            input-hints: no_spellcheck;
+            editable: true;
+            activate => $load_url_from_entry();
+          };
+
+          [end]
+          Box {
+            Button upper_new_tab_button {
+              icon-name: "gtk-add-symbolic";
+              clicked => $new_tab();
+            }
+
+            orientation: horizontal;
+
+            Button open_settings_button {
+              icon-name: "menu_new-symbolic";
+              clicked => $on_open_settings_button_clicked();
+            }
+
+            Separator {
+              styles [
+                "spacer",
+              ]
+            }
+          }
         }
 
-        Button {
-          icon-name: "go-next-symbolic";
-          clicked => $on_forward_button_clicked();
-        }
+        content: Adw.TabBar web_tab_bar {
+          styles [
+            "inline",
+          ]
 
-        Button {
-          icon-name: "view-refresh-symbolic";
-          clicked => $on_refresh_button_clicked();
-        }
+          view: web_view;
+          inverted: false;
+          expand-tabs: false;
 
-        title-widget: Entry url_entry {
-          hexpand: true;
-          input-purpose: url;
-          input-hints: no_spellcheck;
-          editable: true;
-          activate => $load_url_from_entry();
-        };
+          start-action-widget: Button tab_overview_button {
+            styles [
+              "flat",
+            ]
 
-        [end]
-        Box {
-          Button upper_new_tab_button {
+            icon-name: "xsi-view-grid-symbolic";
+            clicked => $show_tab_overview();
+          };
+
+          end-action-widget: Button new_tab_button {
+            styles [
+              "flat",
+            ]
+
             icon-name: "gtk-add-symbolic";
             clicked => $new_tab();
-          }
-
-          orientation: horizontal;
-
-          Button open_settings_button {
-            icon-name: "menu_new-symbolic";
-            clicked => $on_open_settings_button_clicked();
-          }
-
-          Separator {
-            styles [
-              "spacer",
-            ]
-          }
-        }
-      }
-
-      content: Adw.TabBar web_tab_bar {
-        styles [
-          "inline",
-        ]
-
-        view: web_view;
-        inverted: false;
-        expand-tabs: false;
-
-        start-action-widget: Button tab_overview_button {
-          styles [
-            "flat",
-          ]
-
-          icon-name: "xsi-view-grid-symbolic";
-          clicked => $show_tab_overview();
-        };
-
-        end-action-widget: Button new_tab_button {
-          styles [
-            "flat",
-          ]
-
-          icon-name: "gtk-add-symbolic";
-          clicked => $new_tab();
+          };
         };
       };
     }
