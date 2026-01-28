@@ -80,6 +80,7 @@ void on_open_settings_button_clicked(GtkWidget* widget, gpointer user_data)
         GtkStack*  stack         = open_settings_state.stack;
         GtkWidget* settings_page = open_settings_state.page;
         gtk_stack_set_visible_child(stack, settings_page);
+        gtk_widget_set_visible(GTK_WIDGET(tab_bar), FALSE);
 }
 
 void on_close_settings_button_clicked(GtkWidget* widget, gpointer user_data)
@@ -88,6 +89,7 @@ void on_close_settings_button_clicked(GtkWidget* widget, gpointer user_data)
         GtkStack*  stack     = back_to_main_state.stack;
         GtkWidget* main_page = back_to_main_state.page;
         gtk_stack_set_visible_child(stack, main_page);
+        gtk_widget_set_visible(GTK_WIDGET(tab_bar), TRUE);
 }
 
 void load_url_from_entry(GtkWidget* entry, gpointer user_data)

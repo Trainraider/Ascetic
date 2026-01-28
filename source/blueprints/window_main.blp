@@ -5,50 +5,89 @@ Adw.Window window_main {
   default-width: 1024;
   default-height: 768;
   icon-name: "template_app";
-  
-  content: Adw.ToolbarView {
-    [top]
-    Adw.HeaderBar {
-      [start]
-      Button {
-        icon-name: "go-previous-symbolic";
-        clicked => $on_back_button_clicked();
+
+  content: Box {
+    orientation: vertical;
+
+    Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {
+        [start]
+        Button {
+          icon-name: "go-previous-symbolic";
+          clicked => $on_back_button_clicked();
+        }
+
+        Button {
+          icon-name: "go-next-symbolic";
+          clicked => $on_forward_button_clicked();
+        }
+
+        Button {
+          icon-name: "view-refresh-symbolic";
+          clicked => $on_refresh_button_clicked();
+        }
+
+        title-widget: Entry url_entry {
+          hexpand: true;
+          input-purpose: url;
+          input-hints: no_spellcheck;
+          editable: true;
+          activate => $load_url_from_entry();
+        };
+
+        [end]
+        Box {
+          Button upper_new_tab_button {
+            icon-name: "gtk-add-symbolic";
+            clicked => $new_tab();
+          }
+
+          orientation: horizontal;
+
+          Button open_settings_button {
+            icon-name: "menu_new-symbolic";
+            clicked => $on_open_settings_button_clicked();
+          }
+
+          Separator {
+            styles [
+              "spacer",
+            ]
+          }
+        }
       }
-      Button {
-        icon-name: "go-next-symbolic";
-        clicked => $on_forward_button_clicked();
-      }
-      Button {
-        icon-name: "view-refresh-symbolic";
-        clicked => $on_refresh_button_clicked();
-      }
-      
-      title-widget: Entry url_entry{
-        hexpand: true;
-        input-purpose: url;
-        input-hints: no_spellcheck;
-        editable: true;
-        activate => $load_url_from_entry();
-      };
-      
-      [end]
-      Box {
-        Button upper_new_tab_button {
+
+      content: Adw.TabBar web_tab_bar {
+        styles [
+          "inline",
+        ]
+
+        view: web_view;
+        inverted: false;
+        expand-tabs: false;
+
+        start-action-widget: Button tab_overview_button {
+          styles [
+            "flat",
+          ]
+
+          icon-name: "xsi-view-grid-symbolic";
+          clicked => $show_tab_overview();
+        };
+
+        end-action-widget: Button new_tab_button {
+          styles [
+            "flat",
+          ]
+
           icon-name: "gtk-add-symbolic";
           clicked => $new_tab();
-        }
-        orientation: horizontal;
-        Button open_settings_button {
-          icon-name: "menu_new-symbolic";
-          clicked => $on_open_settings_button_clicked();
-        }
-        Separator {
-          styles ["spacer"]
-        }
-      }
+        };
+      };
     }
-    
-    content: Stack stack_main {
+
+    Stack stack_main {
       StackPage main_page {
         child: Adw.TabOverview web_tabs_overview {
           enable-new-tab: true;
@@ -56,27 +95,9 @@ Adw.Window window_main {
           show-start-title-buttons: false;
           show-end-title-buttons: false;
           create-tab => $new_tab();
-          Box {
-            orientation: vertical;
-            Adw.TabBar web_tab_bar {
-                styles ["inline"]
-                view: web_view;
-                inverted: false;
-                expand-tabs: false;
-                start-action-widget: Button tab_overview_button {
-                  styles ["flat"]
-                  icon-name: "xsi-view-grid-symbolic";
-                  clicked => $show_tab_overview();
-                };
-                end-action-widget: Button new_tab_button {
-                  styles ["flat"]
-                  icon-name: "gtk-add-symbolic";
-                  clicked => $new_tab();
-                };
-              }
-            Adw.TabView web_view {
-              page-attached => $on_tab_page_attached();
-            }
+
+          Adw.TabView web_view {
+            page-attached => $on_tab_page_attached();
           }
         };
       }
@@ -84,6 +105,6 @@ Adw.Window window_main {
       StackPage settings_page {
         child: $TemplateAppSettingsPage settings_page_template {};
       }
-    };
+    }
   };
 }
