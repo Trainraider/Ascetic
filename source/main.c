@@ -180,7 +180,7 @@ void activate(GtkApplication* app, gpointer user_data)
         revealer_main_toolbar           = BUILDER_GET_OBJECT(builder, GtkRevealer, GTK_REVEALER, "revealer_main_toolbar");
         GtkWidget* upper_new_tab_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "upper_new_tab_button");
 
-        GtkWidget* close_settings_button = template_app_settings_page_get_close_settings_button(TEMPLATE_APP_SETTINGS_PAGE(template));
+        GtkWidget* close_settings_button = ascetic_settings_page_get_close_settings_button(ASCETIC_SETTINGS_PAGE(template));
         check_gobject(G_OBJECT(close_settings_button), "Error: Failed to get the close_settings_button.\n");
         GtkWidget* open_settings_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "open_settings_button");
 

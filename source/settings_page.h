@@ -5,12 +5,12 @@
 
 G_BEGIN_DECLS
 
-#define TEMPLATE_APP_TYPE_SETTINGS_PAGE template_app_settings_page_get_type()
-G_DECLARE_FINAL_TYPE(TemplateAppSettingsPage, template_app_settings_page, TEMPLATE_APP, SETTINGS_PAGE, GtkWidget)
+#define ASCETIC_TYPE_SETTINGS_PAGE ascetic_settings_page_get_type()
+G_DECLARE_FINAL_TYPE(AsceticSettingsPage, ascetic_settings_page, ASCETIC, SETTINGS_PAGE, GtkWidget)
 
-TemplateAppSettingsPage* template_app_settings_page_new(void);
+AsceticSettingsPage* ascetic_settings_page_new(void);
 
-GtkWidget* template_app_settings_page_get_close_settings_button(TemplateAppSettingsPage* self);
+GtkWidget* ascetic_settings_page_get_close_settings_button(AsceticSettingsPage* self);
 
 G_END_DECLS
 
