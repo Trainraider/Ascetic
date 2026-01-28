@@ -44,14 +44,14 @@ Adw.Window window_main {
           [end]
           Box {
             Button upper_new_tab_button {
-              icon-name: "gtk-add-symbolic";
+              icon-name: "list-add-symbolic";
               clicked => $new_tab();
             }
 
             orientation: horizontal;
 
             Button open_settings_button {
-              icon-name: "menu_new-symbolic";
+              icon-name: "open-menu-symbolic";
               clicked => $on_open_settings_button_clicked();
             }
 
@@ -86,7 +86,7 @@ Adw.Window window_main {
               "flat",
             ]
 
-            icon-name: "gtk-add-symbolic";
+            icon-name: "list-add-symbolic";
             clicked => $new_tab();
           };
         };

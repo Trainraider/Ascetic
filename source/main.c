@@ -211,7 +211,7 @@ int main(int argc, char* argv[])
 
         uri_init();
         browser_session_init();
-        new_tab_icon = g_themed_icon_new("xsi-applications-internet-symbolic");
+        new_tab_icon = g_themed_icon_new("applications-internet-symbolic");
         app          = adw_application_new(APP_ID, G_APPLICATION_DEFAULT_FLAGS);
         g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
         int status = g_application_run(G_APPLICATION(app), argc, argv);
