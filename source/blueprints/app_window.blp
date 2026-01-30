@@ -1,0 +1,118 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $AsceticAppWindow : Adw.ApplicationWindow {
+  default-width: 1024;
+  default-height: 768;
+  icon-name: "template_app";
+
+  content: Box {
+    orientation: vertical;
+
+    Revealer revealer_main_toolbar {
+      transition-type: slide_down;
+      transition-duration: 200;
+      reveal-child: true;
+
+      child: Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {
+          [start]
+          Button {
+            icon-name: "go-previous-symbolic";
+            clicked => $on_back_button_clicked();
+          }
+
+          Button {
+            icon-name: "go-next-symbolic";
+            clicked => $on_forward_button_clicked();
+          }
+
+          Button {
+            icon-name: "view-refresh-symbolic";
+            clicked => $on_refresh_button_clicked();
+          }
+
+          title-widget: Entry url_entry {
+            hexpand: true;
+            input-purpose: url;
+            input-hints: no_spellcheck;
+            editable: true;
+            activate => $load_url_from_entry();
+          };
+
+          [end]
+          Box {
+            Button upper_new_tab_button {
+              icon-name: "list-add-symbolic";
+              clicked => $new_tab();
+            }
+
+            orientation: horizontal;
+
+            Button open_settings_button {
+              icon-name: "open-menu-symbolic";
+              clicked => $on_open_settings_button_clicked();
+            }
+
+            Separator {
+              styles [
+                "spacer",
+              ]
+            }
+          }
+        }
+
+        content: Adw.TabBar web_tab_bar {
+          notify::tabs-revealed => $on_tab_bar_visibility_changed(upper_new_tab_button) not-swapped;
+          styles [
+            "inline",
+          ]
+
+          view: web_tab_view;
+          inverted: false;
+          expand-tabs: false;
+
+          start-action-widget: Button tab_overview_button {
+            styles [
+              "flat",
+            ]
+
+            icon-name: "xsi-view-grid-symbolic";
+            clicked => $show_tab_overview();
+          };
+
+          end-action-widget: Button new_tab_button {
+            styles [
+              "flat",
+            ]
+
+            icon-name: "list-add-symbolic";
+            clicked => $new_tab();
+          };
+        };
+      };
+    }
+
+    Stack stack_main {
+      StackPage {
+        child: Adw.TabOverview web_page {
+          enable-new-tab: true;
+          view: web_tab_view;
+          show-start-title-buttons: false;
+          show-end-title-buttons: false;
+          create-tab => $new_tab();
+
+          Adw.TabView web_tab_view {
+            notify::selected-page => $on_tab_changed();
+            page-attached => $on_tab_page_attached();
+          }
+        };
+      }
+
+      StackPage {
+        child: $AsceticSettingsPage settings_page {};
+      }
+    }
+  };
+}

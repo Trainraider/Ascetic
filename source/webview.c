@@ -1,5 +1,9 @@
 #include "webview.h"
+#include "app_window.h"
+#include "app_window.h"
 #include "defer.h"
+
+#define ROOT(widget) ASCETIC_APP_WINDOW(gtk_widget_get_root(GTK_WIDGET(widget)))
 
 // Singleton for shared browser session components
 static struct {
@@ -135,8 +139,11 @@ void on_webview_title_changed(WebKitWebView* webview, GParamSpec* pspec, gpointe
 void on_webview_uri_changed(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data)
 {
         (void)pspec;
-        AdwTabPage* tab          = ADW_TAB_PAGE(user_data);
-        AdwTabPage* selected_tab = adw_tab_view_get_selected_page(tab_view);
+        AsceticAppWindow* root         = ROOT(webview);
+        AdwTabView*       tab_view     = root->web_tab_view;
+        GtkEntry*         url_entry    = root->url_entry;
+        AdwTabPage*       tab          = ADW_TAB_PAGE(user_data);
+        AdwTabPage*       selected_tab = adw_tab_view_get_selected_page(tab_view);
         if (tab != selected_tab)
                 return;
         if (gtk_widget_has_focus(GTK_WIDGET(url_entry)))
@@ -153,19 +160,24 @@ void on_webview_uri_changed(WebKitWebView* webview, GParamSpec* pspec, gpointer 
 void on_webview_enter_fullscreen(WebKitWebView* webview, gpointer user_data)
 {
         (void)user_data;
-        gtk_revealer_set_reveal_child(revealer_main_toolbar, FALSE);
+        AsceticAppWindow* root = ROOT(webview);
+        gtk_revealer_set_reveal_child(root->revealer_main_toolbar, FALSE);
 }
 
 void on_webview_leave_fullscreen(WebKitWebView* webview, gpointer user_data)
 {
         (void)user_data;
-        gtk_revealer_set_reveal_child(revealer_main_toolbar, TRUE);
+        AsceticAppWindow* root = ROOT(webview);
+        gtk_revealer_set_reveal_child(root->revealer_main_toolbar, TRUE);
 }
 
 AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
 {
         (void)user_data;
-        WebKitWebView* related_webview = NULL;
+        AsceticAppWindow* root            = ROOT(widget);
+        AdwTabView*       tab_view        = root->web_tab_view;
+        GtkEntry*         url_entry       = root->url_entry;
+        WebKitWebView*    related_webview = NULL;
 
         if (G_TYPE_CHECK_INSTANCE_TYPE(widget, WEBKIT_TYPE_WEB_VIEW)) {
                 related_webview = WEBKIT_WEB_VIEW(widget);
@@ -196,18 +208,18 @@ void on_tab_changed(GObject* self, GParamSpec* pspec, gpointer user_data)
 {
         (void)self;
         (void)pspec;
-        (void)user_data;
-        AdwTabPage* selected_page = adw_tab_view_get_selected_page(tab_view);
+        AsceticAppWindow* root          = ROOT(self);
+        AdwTabPage*       selected_page = adw_tab_view_get_selected_page(root->web_tab_view);
         if (!selected_page) {
-                active_web_view              = NULL;
-                GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(url_entry);
+                root->active_web_view        = NULL;
+                GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(root->url_entry);
                 gtk_entry_buffer_set_text(entry_buffer, "", -1);
                 return;
         }
-        active_web_view = tab_get_webview(selected_page);
+        root->active_web_view = tab_get_webview(selected_page);
         // update url entry
-        const char*     uri          = webkit_web_view_get_uri(active_web_view);
-        GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(url_entry);
+        const char*     uri          = webkit_web_view_get_uri(root->active_web_view);
+        GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(root->url_entry);
         if (uri) {
                 gtk_entry_buffer_set_text(entry_buffer, uri, -1);
         } else {

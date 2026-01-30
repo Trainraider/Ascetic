@@ -1,4 +1,5 @@
 #include "data.h"
+#include "app_window.h"
 #include "settings_page.h"
 #include "uri.h"
 #include "version.h"
@@ -12,15 +13,8 @@
 #include "defer.h"
 #include "globals.h"
 
-GtkBuilder*     builder               = NULL;
-AdwApplication* app                   = NULL;
-AdwTabOverview* tab_overview          = NULL;
-AdwTabBar*      tab_bar               = NULL;
-AdwTabView*     tab_view              = NULL;
-WebKitWebView*  active_web_view       = NULL;
-GIcon*          new_tab_icon          = NULL;
-GtkEntry*       url_entry             = NULL;
-GtkRevealer*    revealer_main_toolbar = NULL;
+AdwApplication* app          = NULL;
+GIcon*          new_tab_icon = NULL;
 
 void check_gobject(GObject* obj, gchar* failure_msg)
 {
@@ -35,68 +29,69 @@ void check_gobject(GObject* obj, gchar* failure_msg)
         exit(1);
 }
 
+#define BUILDER_GET_OBJECT(builder, type, TYPE, name)                             \
+        ({                                                                        \
+                type* obj = TYPE(gtk_builder_get_object(builder, name));          \
+                check_gobject(G_OBJECT(obj), "Error: Failed to get " name ".\n"); \
+                obj;                                                              \
+        })
+
+#define ROOT(widget) ASCETIC_APP_WINDOW(gtk_widget_get_root(GTK_WIDGET(widget)))
+
 void show_tab_overview(GtkWidget* widget, gpointer user_data)
 {
-        (void)widget;
         (void)user_data;
-        adw_tab_overview_set_open(tab_overview, TRUE);
+        adw_tab_overview_set_open(ROOT(widget)->web_page, TRUE);
 }
 
 void on_back_button_clicked(GtkWidget* widget, gpointer user_data)
 {
-        (void)widget;
         (void)user_data;
+        WebKitWebView* active_web_view = ROOT(widget)->active_web_view;
         if (active_web_view)
                 webkit_web_view_go_back(active_web_view);
 }
 
 void on_forward_button_clicked(GtkWidget* widget, gpointer user_data)
 {
-        (void)widget;
         (void)user_data;
+        WebKitWebView* active_web_view = ROOT(widget)->active_web_view;
         if (active_web_view)
                 webkit_web_view_go_forward(active_web_view);
 }
 
 void on_refresh_button_clicked(GtkWidget* widget, gpointer user_data)
 {
-        (void)widget;
         (void)user_data;
+        WebKitWebView* active_web_view = ROOT(widget)->active_web_view;
         if (active_web_view)
                 webkit_web_view_reload(active_web_view);
 }
 
-typedef struct
-{
-        GtkStack*  stack;
-        GtkWidget* page;
-} StackState;
-
-static StackState open_settings_state;
-static StackState back_to_main_state;
-
 void on_open_settings_button_clicked(GtkWidget* widget, gpointer user_data)
 {
-        (void)widget;
-        GtkStack*  stack         = open_settings_state.stack;
-        GtkWidget* settings_page = open_settings_state.page;
+        AsceticAppWindow* root          = ROOT(widget);
+        GtkStack*         stack         = root->stack_main;
+        GtkWidget*        settings_page = GTK_WIDGET(root->settings_page);
         gtk_stack_set_visible_child(stack, settings_page);
-        gtk_widget_set_visible(GTK_WIDGET(tab_bar), FALSE);
+        gtk_widget_set_visible(GTK_WIDGET(root->web_tab_bar), FALSE);
 }
 
 void on_close_settings_button_clicked(GtkWidget* widget, gpointer user_data)
 {
-        (void)widget;
-        GtkStack*  stack     = back_to_main_state.stack;
-        GtkWidget* main_page = back_to_main_state.page;
+        AsceticAppWindow* root      = ROOT(widget);
+        GtkStack*         stack     = root->stack_main;
+        GtkWidget*        main_page = GTK_WIDGET(root->web_page);
         gtk_stack_set_visible_child(stack, main_page);
-        gtk_widget_set_visible(GTK_WIDGET(tab_bar), TRUE);
+        gtk_widget_set_visible(GTK_WIDGET(root->web_tab_bar), TRUE);
 }
 
 void load_url_from_entry(GtkWidget* entry, gpointer user_data)
 {
         S_(void)
                 user_data;
+                AsceticAppWindow* root            = ROOT(entry);
+                WebKitWebView*    active_web_view = root->active_web_view;
                 if (!active_web_view)
                         return;
                 const char* url        = gtk_editable_get_text(GTK_EDITABLE(entry));
@@ -115,32 +110,11 @@ void load_url_from_entry(GtkWidget* entry, gpointer user_data)
         _S
 }
 
-void on_tab_bar_visibility_changed(AdwTabBar* tab_bar, GParamSpec* pspec, gpointer user_data)
-{
-        (void)pspec;
-        GtkWidget* upper_new_tab_button = GTK_WIDGET(user_data);
-        gboolean   tabs_revealed        = adw_tab_bar_get_tabs_revealed(tab_bar);
-        if (tabs_revealed) {
-                gtk_widget_set_opacity(upper_new_tab_button, 0.0);
-                gtk_widget_set_sensitive(upper_new_tab_button, FALSE);
-        } else {
-                gtk_widget_set_opacity(upper_new_tab_button, 1.0);
-                gtk_widget_set_sensitive(upper_new_tab_button, TRUE);
-        }
-}
-
 void on_tab_page_attached(AdwTabView* self, AdwTabPage* page, gint position, gpointer user_data)
 {
         (void)user_data;
         adw_tab_view_set_selected_page(self, page);
 }
-
-#define BUILDER_GET_OBJECT(builder, type, TYPE, name)                             \
-        ({                                                                        \
-                type* obj = TYPE(gtk_builder_get_object(builder, name));          \
-                check_gobject(G_OBJECT(obj), "Error: Failed to get " name ".\n"); \
-                obj;                                                              \
-        })
 
 void activate(GtkApplication* app, gpointer user_data)
 {
@@ -155,7 +129,7 @@ void activate(GtkApplication* app, gpointer user_data)
         gtk_builder_cscope_add_callback(scope, show_tab_overview);
         gtk_builder_cscope_add_callback(scope, on_tab_page_attached);
         gtk_builder_cscope_add_callback(scope, new_tab);
-        builder = gtk_builder_new();
+        GtkBuilder* builder = gtk_builder_new();
         gtk_builder_set_scope(builder, scope);
         GError* error = NULL;
         gtk_builder_add_from_resource(builder, APP_PREFIX "/window_main.ui", &error);
@@ -164,42 +138,13 @@ void activate(GtkApplication* app, gpointer user_data)
                 g_clear_error(&error);
                 exit(1);
         }
-        g_object_unref(scope);
 
-        AdwApplicationWindow* window     = BUILDER_GET_OBJECT(builder, AdwApplicationWindow, ADW_APPLICATION_WINDOW, "window_main");
-        GtkStack*             stack_main = BUILDER_GET_OBJECT(builder, GtkStack, GTK_STACK, "stack_main");
-        GtkStackPage*         main_page  = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "main_page");
-
-        GtkStackPage* settings_page = BUILDER_GET_OBJECT(builder, GtkStackPage, GTK_STACK_PAGE, "settings_page");
-        GtkWidget*    template      = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "settings_page_template");
-
-        tab_overview                    = BUILDER_GET_OBJECT(builder, AdwTabOverview, ADW_TAB_OVERVIEW, "web_tabs_overview");
-        tab_bar                         = BUILDER_GET_OBJECT(builder, AdwTabBar, ADW_TAB_BAR, "web_tab_bar");
-        tab_view                        = BUILDER_GET_OBJECT(builder, AdwTabView, ADW_TAB_VIEW, "web_view");
-        url_entry                       = BUILDER_GET_OBJECT(builder, GtkEntry, GTK_ENTRY, "url_entry");
-        revealer_main_toolbar           = BUILDER_GET_OBJECT(builder, GtkRevealer, GTK_REVEALER, "revealer_main_toolbar");
-        GtkWidget* upper_new_tab_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "upper_new_tab_button");
-
-        GtkWidget* close_settings_button = ascetic_settings_page_get_close_settings_button(ASCETIC_SETTINGS_PAGE(template));
-        check_gobject(G_OBJECT(close_settings_button), "Error: Failed to get the close_settings_button.\n");
-        GtkWidget* open_settings_button = BUILDER_GET_OBJECT(builder, GtkWidget, GTK_WIDGET, "open_settings_button");
-
-        AdwTabPage*    tab     = new_tab(NULL, NULL);
-        WebKitWebView* webview = tab_get_webview(tab);
-        webkit_web_view_load_uri(webview, "https://search.brave.com");
-        active_web_view = webview;
-
-        g_signal_connect(tab_bar, "notify::tabs-revealed", G_CALLBACK(on_tab_bar_visibility_changed), upper_new_tab_button);
-        g_signal_connect(tab_view, "notify::selected-page", G_CALLBACK(on_tab_changed), NULL);
-
-        open_settings_state.stack = stack_main;
-        open_settings_state.page  = gtk_stack_page_get_child(settings_page);
-
-        back_to_main_state.stack = stack_main;
-        back_to_main_state.page  = gtk_stack_page_get_child(main_page);
-
+        AsceticAppWindow* window = ASCETIC_APP_WINDOW(gtk_builder_get_object(builder, "main_window"));
         gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
         gtk_window_present(GTK_WINDOW(window));
+
+        g_object_unref(scope);
+        g_object_unref(builder);
 }
 
 int main(int argc, char* argv[])
@@ -216,8 +161,6 @@ int main(int argc, char* argv[])
         g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
         int status = g_application_run(G_APPLICATION(app), argc, argv);
 
-        if (builder)
-                g_object_unref(builder);
         g_object_unref(app);
         g_object_unref(new_tab_icon);
         browser_session_cleanup();

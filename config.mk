@@ -43,6 +43,6 @@ CFLAGS         ?= -march=native -pipe
 RELEASE_CFLAGS  = -O2 -g -flto
 RELEASE_LDFLAGS = -flto
 DEBUG_CPPFLAGS  = -DDEBUG
-DEBUG_CFLAGS    = -O0 -ggdb -Wpedantic -Wall -Wextra -fsanitize=undefined,address -fstack-protector-strong
-DEBUG_LDFLAGS   = -fsanitize=undefined,address
+DEBUG_CFLAGS    = -O0 -ggdb -Wpedantic -Wall -Wextra -fsanitize=undefined -fstack-protector-strong
+DEBUG_LDFLAGS   = -fsanitize=undefined
 
