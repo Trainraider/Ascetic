@@ -116,10 +116,8 @@ void on_tab_page_attached(AdwTabView* self, AdwTabPage* page, gint position, gpo
         adw_tab_view_set_selected_page(self, page);
 }
 
-void activate(GtkApplication* app, gpointer user_data)
+GtkBuilder* get_window_builder(GtkBuilderScope* scope)
 {
-        (void)user_data;
-        GtkBuilderScope* scope = gtk_builder_cscope_new();
         gtk_builder_cscope_add_callback(scope, load_url_from_entry);
         gtk_builder_cscope_add_callback(scope, on_back_button_clicked);
         gtk_builder_cscope_add_callback(scope, on_forward_button_clicked);
@@ -131,6 +129,34 @@ void activate(GtkApplication* app, gpointer user_data)
         gtk_builder_cscope_add_callback(scope, new_tab);
         GtkBuilder* builder = gtk_builder_new();
         gtk_builder_set_scope(builder, scope);
+        return builder;
+}
+
+AdwTabView* on_tab_create_window(AdwTabView* self, gpointer user_data)
+{
+        (void)user_data;
+        GtkBuilderScope* scope = gtk_builder_cscope_new();
+        GtkBuilder* builder = get_window_builder(scope);
+        GError* error = NULL;
+        gtk_builder_add_from_resource(builder, APP_PREFIX "/window_main.ui", &error);
+        if (error) {
+                g_printerr("Error: Failed to load UI resource: %s\n", error->message);
+                g_clear_error(&error);
+                exit(1);
+        }
+        AsceticAppWindow* window = ASCETIC_APP_WINDOW(gtk_builder_get_object(builder, "main_window"));
+        gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
+        gtk_window_present(GTK_WINDOW(window));
+        g_object_unref(scope);
+        g_object_unref(builder);
+        return window->web_tab_view;
+}
+
+void activate(GtkApplication* app, gpointer user_data)
+{
+        (void)user_data;
+        GtkBuilderScope* scope = gtk_builder_cscope_new();
+        GtkBuilder* builder = get_window_builder(scope);
         GError* error = NULL;
         gtk_builder_add_from_resource(builder, APP_PREFIX "/window_main.ui", &error);
         if (error) {
@@ -140,6 +166,11 @@ void activate(GtkApplication* app, gpointer user_data)
         }
 
         AsceticAppWindow* window = ASCETIC_APP_WINDOW(gtk_builder_get_object(builder, "main_window"));
+        AdwTabPage*    tab          = new_tab(GTK_WIDGET(window), NULL);
+        WebKitWebView* webview      = tab_get_webview(tab);
+        window->active_web_view = webview;
+        webkit_web_view_load_uri(webview, "https://search.brave.com");
+
         gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
         gtk_window_present(GTK_WINDOW(window));
 

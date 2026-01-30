@@ -56,13 +56,6 @@ static void ascetic_app_window_init(AsceticAppWindow* self)
 {
         gtk_widget_init_template(GTK_WIDGET(self));
         self->close_settings_button = GTK_BUTTON(ascetic_settings_page_get_close_settings_button(self->settings_page));
-        AdwTabPage*    tab          = new_tab(GTK_WIDGET(self), NULL);
-        WebKitWebView* webview      = tab_get_webview(tab);
-        webkit_web_view_load_uri(webview, "https://search.brave.com");
-        self->active_web_view = webview;
-
-        // g_signal_connect(self->web_tab_bar, "notify::tabs-revealed", G_CALLBACK(on_tab_bar_visibility_changed), self->upper_new_tab_button);
-        // g_signal_connect(self->web_tab_view, "notify::selected-page", G_CALLBACK(on_tab_changed), NULL);
 }
 
 static void ascetic_app_window_dispose(GObject* object)

@@ -106,6 +106,7 @@ template $AsceticAppWindow : Adw.ApplicationWindow {
           Adw.TabView web_tab_view {
             notify::selected-page => $on_tab_changed();
             page-attached => $on_tab_page_attached();
+            create-window => $on_tab_create_window();
           }
         };
       }
