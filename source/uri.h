@@ -1,16 +1,16 @@
 #ifndef URI_H
 #define URI_H
 
-#include <stdbool.h>
+#include <glib-2.0/glib.h>
 
 typedef struct {
         char* str;
-        bool  is_uri;
+        gboolean  is_uri;
 } ParsedUri;
 
 void      uri_init(void);
 void      uri_cleanup(void);
-bool      uri_has_scheme(const char* uri);
+gboolean      uri_has_scheme(const char* uri);
 ParsedUri uri_parse(const char* input);
 char*     str_to_brave_search_url(const char* query);
 

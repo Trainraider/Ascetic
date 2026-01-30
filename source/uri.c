@@ -3,7 +3,6 @@
 #include <ada_c.h>
 #include <glib-2.0/glib.h>
 #include <libpsl.h>
-#include <stdbool.h>
 
 #define ADA_HOST_TYPE_DEFAULT 0
 #define ADA_HOST_TYPE_IPV4 1
@@ -11,17 +10,17 @@
 
 static psl_ctx_t* psl;
 
-bool uri_has_scheme(const char* uri)
+gboolean uri_has_scheme(const char* uri)
 {
         if (g_strcmp0(uri, "") == 0) {
-                return false;
+                return FALSE;
         }
 
         if (g_str_has_prefix(uri, "http://") || g_str_has_prefix(uri, "https://") || g_str_has_prefix(uri, "file://")) {
-                return true;
+                return TRUE;
         }
 
-        return false;
+        return FALSE;
 }
 
 void dada_free(void* ptr)
@@ -32,20 +31,20 @@ void dada_free(void* ptr)
         }
 }
 
-bool uri_is_navigable(const char* uri)
+gboolean uri_is_navigable(const char* uri)
 {
         S_
                 ada_url url = ada_parse(uri, strlen(uri));
                 defer(dada_free, url);
 
                 if (!ada_is_valid(url)) {
-                        return false;
+                        return FALSE;
                 }
 
                 uint8_t host_type = ada_get_host_type(url);
 
                 if (host_type == ADA_HOST_TYPE_IPV4 || host_type == ADA_HOST_TYPE_IPV6) {
-                        return true;
+                        return TRUE;
                 }
 
                 ada_string hostname = ada_get_hostname(url);
@@ -56,7 +55,7 @@ bool uri_is_navigable(const char* uri)
                 hostname_str[hostname.length] = '\0';
 
                 if (!g_strcmp0(hostname_str, "localhost")) {
-                        return true;
+                        return TRUE;
                 }
 
                 const char* reg_domain = psl_registrable_domain(psl, hostname_str);
@@ -81,7 +80,7 @@ ParsedUri uri_parse(const char* input)
 
         if (!uri_has_scheme(input)) {
                 result.str        = g_strdup_printf("http://%s", input);
-                bool is_navigable = uri_is_navigable(result.str);
+                gboolean is_navigable = uri_is_navigable(result.str);
 
                 if (!is_navigable) {
                         g_free(result.str);
@@ -92,7 +91,7 @@ ParsedUri uri_parse(const char* input)
         }
 
         result.str    = g_strdup(input);
-        result.is_uri = uri_is_navigable(result.str);
+        result.is_uri = TRUE;
         return result;
 }
 
@@ -101,7 +100,7 @@ char* str_to_brave_search_url(const char* query)
         if (!query)
                 return NULL;
 
-        char* encoded = g_uri_escape_string(query, NULL, false);
+        char* encoded = g_uri_escape_string(query, NULL, FALSE);
         char* url     = g_strdup_printf("https://search.brave.com/search?q=%s", encoded);
         g_free(encoded);
 
