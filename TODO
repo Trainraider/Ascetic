@@ -1,0 +1,39 @@
+MimeType support to open files and links
+handle downloads
+favicon support
+Change icon
+Loading progress indicator
+sqlite history
+session restore on crash/restart
+Permission management (camera, mic, geolocation) per site
+keyboard shortcuts
+find in page
+Custom error pages 
+Settings
+- cookies
+- home page
+- tab page
+- default search
+- user agent
+- expose various webkit features
+- expose gtk css features e.g. font size
+- enable http alternatives: Gopher, Gemini, Spartan, freenet, oxen, ipfs, dat, hyper
+- enable tor, i2p, gnunet
+Welcome page
+content blocking
+extension system
+built-in example extension: 
+- tiling webviews inside tabs with i3wm-like controls
+- alt-graphical controls/handles for tiling
+- Xembed other applications into tiles
+- Menu to launch other apps for embedding
+- save/load layouts
+back/forward list in context menu for back/forward buttons
+address bar completions
+reader mode
+tab context menu
+bookmarks
+download manager ui
+DevTools
+Drag URLs onto tabs or address bar
+mute tab audio
