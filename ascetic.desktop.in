@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=@VERSION@
+Type=Application
+Name=@NAME@
+Exec=@EXEC@
+Comment=@COMMENT@
+Icon=@ICON@
+Terminal=false
+Categories=@CATEGORIES@
