@@ -1,6 +1,11 @@
 #ifndef DEFER_H
 #define DEFER_H
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -545,4 +550,7 @@ macro_stack.h size via `./make_macro_stack.sh 9999` or don't #include it anymore
                 switch
 #endif // DONT_REDEFINE_KEYWORDS
 #endif // __GNUC__
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 #endif // DEFER_H
