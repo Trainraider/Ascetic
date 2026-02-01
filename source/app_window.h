@@ -12,21 +12,8 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE(AsceticAppWindow, ascetic_app_window, ASCETIC, APP_WINDOW, AdwApplicationWindow)
 
 AsceticAppWindow* ascetic_app_window_new(void);
+AdwTabPage*       new_tab(GtkWidget* widget, gpointer user_data);
 
 G_END_DECLS
-
-struct _AsceticAppWindow {
-        AdwApplicationWindow parent_instance;
-        GtkStack*            stack_main;
-        AdwTabOverview*      web_page;
-        AsceticSettingsPage* settings_page;
-        AdwTabView*          web_tab_view;
-        AdwTabBar*           web_tab_bar;
-        WebKitWebView*       active_web_view;
-        GtkEntry*            url_entry;
-        GtkRevealer*         revealer_main_toolbar;
-        GtkButton*           open_settings_button;
-        GtkButton*           upper_new_tab_button;
-};
 
 #endif // APP_WINDOW_H

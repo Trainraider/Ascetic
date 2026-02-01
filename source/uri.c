@@ -79,7 +79,7 @@ ParsedUri uri_parse(const char* input)
         ParsedUri result = { 0 };
 
         if (!uri_has_scheme(input)) {
-                result.str        = g_strdup_printf("http://%s", input);
+                result.str            = g_strdup_printf("http://%s", input);
                 gboolean is_navigable = uri_is_navigable(result.str);
 
                 if (!is_navigable) {

@@ -1,9 +1,6 @@
 #include "webview.h"
 #include "app_window.h"
-#include "app_window.h"
 #include "defer.h"
-
-#define ROOT(widget) ASCETIC_APP_WINDOW(gtk_widget_get_root(GTK_WIDGET(widget)))
 
 // Singleton for shared browser session components
 static struct {
@@ -120,7 +117,6 @@ WebKitWebView* create_webview(WebKitWebView* related_view)
         }
 
         webkit_web_view_set_background_color(webview, &((GdkRGBA) { 0.1, 0.1, 0.1, 1.0 }));
-        g_signal_connect(webview, "create", G_CALLBACK(on_create_web_view), NULL);
         return webview;
 }
 
@@ -133,97 +129,6 @@ void on_webview_title_changed(WebKitWebView* webview, GParamSpec* pspec, gpointe
                 adw_tab_page_set_title(tab, title);
         } else {
                 adw_tab_page_set_title(tab, "New Tab");
-        }
-}
-
-void on_webview_uri_changed(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data)
-{
-        (void)pspec;
-        AsceticAppWindow* root         = ROOT(webview);
-        AdwTabView*       tab_view     = root->web_tab_view;
-        GtkEntry*         url_entry    = root->url_entry;
-        AdwTabPage*       tab          = ADW_TAB_PAGE(user_data);
-        AdwTabPage*       selected_tab = adw_tab_view_get_selected_page(tab_view);
-        if (tab != selected_tab)
-                return;
-        if (gtk_widget_has_focus(GTK_WIDGET(url_entry)))
-                return;
-        const char*     uri          = webkit_web_view_get_uri(webview);
-        GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(url_entry);
-        if (uri) {
-                gtk_entry_buffer_set_text(entry_buffer, uri, -1);
-        } else {
-                gtk_entry_buffer_set_text(entry_buffer, "", -1);
-        }
-}
-
-void on_webview_enter_fullscreen(WebKitWebView* webview, gpointer user_data)
-{
-        (void)user_data;
-        AsceticAppWindow* root = ROOT(webview);
-        gtk_revealer_set_reveal_child(root->revealer_main_toolbar, FALSE);
-}
-
-void on_webview_leave_fullscreen(WebKitWebView* webview, gpointer user_data)
-{
-        (void)user_data;
-        AsceticAppWindow* root = ROOT(webview);
-        gtk_revealer_set_reveal_child(root->revealer_main_toolbar, TRUE);
-}
-
-AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
-{
-        (void)user_data;
-        AsceticAppWindow* root            = ROOT(widget);
-        AdwTabView*       tab_view        = root->web_tab_view;
-        GtkEntry*         url_entry       = root->url_entry;
-        WebKitWebView*    related_webview = NULL;
-
-        if (G_TYPE_CHECK_INSTANCE_TYPE(widget, WEBKIT_TYPE_WEB_VIEW)) {
-                related_webview = WEBKIT_WEB_VIEW(widget);
-        }
-        WebKitWebView* webview = create_webview(related_webview);
-        AdwTabPage*    tab     = adw_tab_view_append(tab_view, GTK_WIDGET(webview));
-        adw_tab_page_set_title(tab, "New Tab");
-        adw_tab_page_set_icon(tab, new_tab_icon);
-        g_signal_connect(webview, "notify::title", G_CALLBACK(on_webview_title_changed), tab);
-        g_signal_connect(webview, "notify::uri", G_CALLBACK(on_webview_uri_changed), tab);
-        g_signal_connect(webview, "enter-fullscreen", G_CALLBACK(on_webview_enter_fullscreen), NULL);
-        g_signal_connect(webview, "leave-fullscreen", G_CALLBACK(on_webview_leave_fullscreen), NULL);
-        if (G_TYPE_CHECK_INSTANCE_TYPE(widget, GTK_TYPE_BUTTON)) {
-                gtk_widget_grab_focus(GTK_WIDGET(url_entry));
-        }
-        return tab;
-}
-
-WebKitWebView* on_create_web_view(WebKitWebView* webview, WebKitNavigationAction* navigation_action, gpointer user_data)
-{
-        (void)navigation_action;
-        (void)user_data;
-        AdwTabPage* tab = new_tab(GTK_WIDGET(webview), NULL);
-        return tab_get_webview(tab);
-}
-
-void on_tab_changed(GObject* self, GParamSpec* pspec, gpointer user_data)
-{
-        (void)self;
-        (void)pspec;
-        AsceticAppWindow* root          = ROOT(self);
-        AdwTabPage*       selected_page = adw_tab_view_get_selected_page(root->web_tab_view);
-        if (!selected_page) {
-                root->active_web_view        = NULL;
-                GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(root->url_entry);
-                gtk_entry_buffer_set_text(entry_buffer, "", -1);
-                return;
-        }
-        root->active_web_view = tab_get_webview(selected_page);
-        // update url entry
-        const char*     uri          = webkit_web_view_get_uri(root->active_web_view);
-        GtkEntryBuffer* entry_buffer = gtk_entry_get_buffer(root->url_entry);
-        if (uri) {
-                gtk_entry_buffer_set_text(entry_buffer, uri, -1);
-        } else {
-                gtk_entry_buffer_set_text(entry_buffer, "", -1);
         }
 }
 

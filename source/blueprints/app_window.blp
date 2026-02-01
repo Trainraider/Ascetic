@@ -20,17 +20,17 @@ template $AsceticAppWindow : Adw.ApplicationWindow {
           [start]
           Button {
             icon-name: "go-previous-symbolic";
-            clicked => $on_back_button_clicked();
+            clicked => $on_back_button_clicked(template) not-swapped;
           }
 
           Button {
             icon-name: "go-next-symbolic";
-            clicked => $on_forward_button_clicked();
+            clicked => $on_forward_button_clicked(template) not-swapped;
           }
 
           Button {
             icon-name: "view-refresh-symbolic";
-            clicked => $on_refresh_button_clicked();
+            clicked => $on_refresh_button_clicked(template) not-swapped;
           }
 
           title-widget: Entry url_entry {
@@ -38,21 +38,21 @@ template $AsceticAppWindow : Adw.ApplicationWindow {
             input-purpose: url;
             input-hints: no_spellcheck;
             editable: true;
-            activate => $load_url_from_entry();
+            activate => $load_url_from_entry(template) not-swapped;
           };
 
           [end]
           Box {
             Button upper_new_tab_button {
               icon-name: "list-add-symbolic";
-              clicked => $new_tab();
+              clicked => $new_tab(template) not-swapped;
             }
 
             orientation: horizontal;
 
             Button open_settings_button {
               icon-name: "open-menu-symbolic";
-              clicked => $on_open_settings_button_clicked();
+              clicked => $on_open_settings_button_clicked(template) not-swapped;
             }
 
             Separator {
@@ -79,7 +79,7 @@ template $AsceticAppWindow : Adw.ApplicationWindow {
             ]
 
             icon-name: "xsi-view-grid-symbolic";
-            clicked => $show_tab_overview();
+            clicked => $show_tab_overview(template) not-swapped;
           };
 
           end-action-widget: Button new_tab_button {
@@ -88,7 +88,7 @@ template $AsceticAppWindow : Adw.ApplicationWindow {
             ]
 
             icon-name: "list-add-symbolic";
-            clicked => $new_tab();
+            clicked => $new_tab(template) not-swapped;
           };
         };
       };
@@ -101,19 +101,19 @@ template $AsceticAppWindow : Adw.ApplicationWindow {
           view: web_tab_view;
           show-start-title-buttons: false;
           show-end-title-buttons: false;
-          create-tab => $new_tab();
+          create-tab => $new_tab(template) not-swapped;
 
           Adw.TabView web_tab_view {
-            notify::selected-page => $on_tab_changed();
-            page-attached => $on_tab_page_attached();
-            create-window => $on_tab_create_window();
+            notify::selected-page => $on_tab_changed(template) not-swapped;
+            page-attached => $on_tab_page_attached(template) not-swapped;
+            create-window => $on_tab_create_window(template) not-swapped;
           }
         };
       }
 
       StackPage {
         child: $AsceticSettingsPage settings_page {
-          close-requested => $on_close_settings();
+          close-requested => $on_close_settings(template) not-swapped;
         };
       }
     }

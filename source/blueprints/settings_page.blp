@@ -14,6 +14,7 @@ template $AsceticSettingsPage : Gtk.Widget {
           margin-top: 10;
           margin-end: 10;
           icon-name: "tab-close-symbolic";
+          clicked => $on_close_settings_button_clicked(template) not-swapped;
         }
       }
     }
