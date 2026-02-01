@@ -25,7 +25,6 @@ struct _AsceticAppWindow {
         WebKitWebView*       active_web_view;
         GtkEntry*            url_entry;
         GtkRevealer*         revealer_main_toolbar;
-        GtkButton*           close_settings_button;
         GtkButton*           open_settings_button;
         GtkButton*           upper_new_tab_button;
 };

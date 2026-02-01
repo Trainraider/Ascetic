@@ -77,12 +77,12 @@ void on_open_settings_button_clicked(GtkWidget* widget, gpointer user_data)
         gtk_widget_set_visible(GTK_WIDGET(root->web_tab_bar), FALSE);
 }
 
-void on_close_settings_button_clicked(GtkWidget* widget, gpointer user_data)
-{
-        AsceticAppWindow* root      = ROOT(widget);
-        GtkStack*         stack     = root->stack_main;
-        GtkWidget*        main_page = GTK_WIDGET(root->web_page);
-        gtk_stack_set_visible_child(stack, main_page);
+void on_close_settings(AsceticSettingsPage* settings, gpointer user_data) {
+        (void)user_data;
+        AsceticAppWindow* root  = ROOT(GTK_WIDGET(settings));
+        GtkStack*         stack = root->stack_main;
+        GtkWidget*        web_page = GTK_WIDGET(root->web_page);
+        gtk_stack_set_visible_child(stack, web_page);
         gtk_widget_set_visible(GTK_WIDGET(root->web_tab_bar), TRUE);
 }
 
@@ -123,7 +123,6 @@ GtkBuilder* get_window_builder(GtkBuilderScope* scope)
         gtk_builder_cscope_add_callback(scope, on_forward_button_clicked);
         gtk_builder_cscope_add_callback(scope, on_refresh_button_clicked);
         gtk_builder_cscope_add_callback(scope, on_open_settings_button_clicked);
-        gtk_builder_cscope_add_callback(scope, on_close_settings_button_clicked);
         gtk_builder_cscope_add_callback(scope, show_tab_overview);
         gtk_builder_cscope_add_callback(scope, on_tab_page_attached);
         gtk_builder_cscope_add_callback(scope, new_tab);

@@ -10,8 +10,6 @@ G_DECLARE_FINAL_TYPE(AsceticSettingsPage, ascetic_settings_page, ASCETIC, SETTIN
 
 AsceticSettingsPage* ascetic_settings_page_new(void);
 
-GtkWidget* ascetic_settings_page_get_close_settings_button(AsceticSettingsPage* self);
-
 G_END_DECLS
 
 #endif // SETTINGS_PAGE_H

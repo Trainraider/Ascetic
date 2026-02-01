@@ -55,7 +55,6 @@ void on_tab_bar_visibility_changed(AdwTabBar* tab_bar, GParamSpec* pspec, gpoint
 static void ascetic_app_window_init(AsceticAppWindow* self)
 {
         gtk_widget_init_template(GTK_WIDGET(self));
-        self->close_settings_button = GTK_BUTTON(ascetic_settings_page_get_close_settings_button(self->settings_page));
 }
 
 static void ascetic_app_window_dispose(GObject* object)

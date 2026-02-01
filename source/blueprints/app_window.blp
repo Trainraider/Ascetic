@@ -112,7 +112,9 @@ template $AsceticAppWindow : Adw.ApplicationWindow {
       }
 
       StackPage {
-        child: $AsceticSettingsPage settings_page {};
+        child: $AsceticSettingsPage settings_page {
+          close-requested => $on_close_settings();
+        };
       }
     }
   };

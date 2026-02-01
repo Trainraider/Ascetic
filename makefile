@@ -1,7 +1,7 @@
 .PHONY: all debug install uninstall clean format reconfigure
 
-BUILDDIR = build
-DEBUGDIR = debug
+BUILDDIR = builddir
+DEBUGDIR = debugdir
 
 all:
 	@test -d $(BUILDDIR) || meson setup $(BUILDDIR) --buildtype=release
