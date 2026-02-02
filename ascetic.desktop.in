@@ -2,8 +2,10 @@
 Version=@VERSION@
 Type=Application
 Name=@NAME@
-Exec=@EXEC@
+Exec=@EXEC@ %U --gapplication-service
 Comment=@COMMENT@
 Icon=@ICON@
 Terminal=false
 Categories=@CATEGORIES@
+MimeType=text/html;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;
+DBusActivatable=true

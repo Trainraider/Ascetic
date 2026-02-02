@@ -124,12 +124,12 @@ desktop_conf.set('VERSION',   app_version)
 desktop_conf.set('NAME',      app_name)
 desktop_conf.set('EXEC',      get_option('prefix') + '/bin/' + app_target)
 desktop_conf.set('COMMENT',   app_comment)
-desktop_conf.set('ICON',      app_target)
+desktop_conf.set('ICON',      get_option('prefix') + '/share/icons/hicolor/scalable/apps/' + app_target + '.svg')
 desktop_conf.set('CATEGORIES','GNOME;GTK;Network;WebBrowser;')
 
 desktop_file = configure_file(
   input:        'ascetic.desktop.in',
-  output:       app_target + '.desktop',
+  output:       app_id + '.desktop',
   configuration: desktop_conf,
   install_dir:  'share/applications',
 )
