@@ -108,10 +108,8 @@ void shutdown(GtkApplication* self, gpointer user_data)
         (void)self;
         (void)user_data;
         g_hash_table_destroy(app_windows);
-        g_object_unref(app);
         g_object_unref(new_tab_icon);
         browser_session_cleanup();
-        uri_cleanup();
 }
 
 int main(int argc, char* argv[])
@@ -127,6 +125,7 @@ int main(int argc, char* argv[])
         g_signal_connect(app, "open", G_CALLBACK(on_open), NULL);
         g_signal_connect(app, "shutdown", G_CALLBACK(shutdown), NULL);
         int status = g_application_run(G_APPLICATION(app), argc, argv);
+        g_object_unref(app);
 
         return status;
 }

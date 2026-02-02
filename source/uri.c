@@ -69,11 +69,6 @@ void uri_init(void)
         psl = (psl_ctx_t*)psl_builtin();
 }
 
-void uri_cleanup(void)
-{
-        psl_free(psl);
-}
-
 ParsedUri uri_parse(const char* input)
 {
         ParsedUri result = { 0 };
