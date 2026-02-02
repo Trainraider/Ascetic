@@ -37,6 +37,14 @@ GObject* _builder_get_object(GtkBuilder* builder, char* name)
 
 G_DEFINE_TYPE(AsceticAppWindow, ascetic_app_window, ADW_TYPE_APPLICATION_WINDOW)
 
+enum {
+        BECAME_ACTIVE,
+        WINDOW_CREATED,
+        LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
 static void ascetic_app_window_dispose(GObject* object);
 
 void show_tab_overview(GtkWidget* widget, gpointer user_data)
@@ -222,6 +230,7 @@ AdwTabView* on_tab_create_window(AdwTabView* self, gpointer user_data)
         AsceticAppWindow* window = ascetic_app_window_new();
         gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
         gtk_window_present(GTK_WINDOW(window));
+        g_signal_emit(ASCETIC_APP_WINDOW(gtk_widget_get_root(GTK_WIDGET(self))), signals[WINDOW_CREATED], 0, window);
         return window->web_tab_view;
 }
 
@@ -242,6 +251,28 @@ void on_tab_bar_visibility_changed(AdwTabBar* tab_bar, GParamSpec* pspec, gpoint
 static void ascetic_app_window_class_init(AsceticAppWindowClass* klass)
 {
         G_OBJECT_CLASS(klass)->dispose = ascetic_app_window_dispose;
+        signals[BECAME_ACTIVE]         = g_signal_new(
+            "became-active",
+            G_TYPE_FROM_CLASS(klass),
+            G_SIGNAL_RUN_LAST,
+            0,
+            NULL,
+            NULL,
+            NULL,
+            G_TYPE_NONE,
+            0);
+        signals[WINDOW_CREATED]        = g_signal_new(
+            "window-created",
+            G_TYPE_FROM_CLASS(klass),
+            G_SIGNAL_RUN_LAST,
+            0,
+            NULL,
+            NULL,
+            NULL,
+            G_TYPE_NONE,
+            1,
+            ASCETIC_TYPE_APP_WINDOW
+        );
         gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(klass), APP_PREFIX "/app_window.ui");
         gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(klass), AsceticAppWindow, stack_main);
         gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(klass), AsceticAppWindow, web_page);
@@ -273,9 +304,19 @@ static void ascetic_app_window_class_init(AsceticAppWindowClass* klass)
         g_object_unref(scope);
 }
 
+void on_active_changed(AsceticAppWindow* self, GParamSpec* pspec, gpointer user_data)
+{
+        (void)pspec;
+        (void)user_data;
+        if (gtk_window_is_active(GTK_WINDOW(self))) {
+                g_signal_emit(self, signals[BECAME_ACTIVE], 0);
+        }
+}
+
 static void ascetic_app_window_init(AsceticAppWindow* self)
 {
         gtk_widget_init_template(GTK_WIDGET(self));
+        g_signal_connect(self, "notify::is-active", G_CALLBACK(on_active_changed), NULL);
 }
 
 static void ascetic_app_window_dispose(GObject* object)
