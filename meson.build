@@ -43,7 +43,6 @@ c_sources = files(
 
 # Blueprint compilation
 blueprint_files = [
-  'window_main',
   'settings_page',
   'app_window',
 ]

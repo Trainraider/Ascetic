@@ -5,8 +5,6 @@
 #include <adwaita.h>
 #include "globals.h"
 
-typedef struct BrowserTab BrowserTab;
-
 void browser_session_init(void);
 
 void browser_session_cleanup(void);
