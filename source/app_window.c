@@ -183,6 +183,7 @@ AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
         adw_tab_page_set_title(tab, "New Tab");
         adw_tab_page_set_icon(tab, new_tab_icon);
         g_signal_connect(webview, "notify::title", G_CALLBACK(on_webview_title_changed), tab);
+        g_signal_connect(webview, "notify::favicon", G_CALLBACK(on_webview_favicon_changed), tab);
         g_signal_connect(webview, "notify::uri", G_CALLBACK(on_webview_uri_changed), window);
         g_signal_connect(webview, "enter-fullscreen", G_CALLBACK(on_webview_enter_fullscreen), window);
         g_signal_connect(webview, "leave-fullscreen", G_CALLBACK(on_webview_leave_fullscreen), window);

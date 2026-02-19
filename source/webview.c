@@ -69,6 +69,9 @@ void browser_session_init(void)
 
                 browser_session.session = webkit_network_session_new(data_dir, cache_dir);
 
+                WebKitWebsiteDataManager* data_manager = webkit_network_session_get_website_data_manager(browser_session.session);
+                webkit_website_data_manager_set_favicons_enabled(data_manager, TRUE);
+
                 WebKitCookieManager* cookie_manager = webkit_network_session_get_cookie_manager(browser_session.session);
                 local char*          cookie_file    = g_build_filename(data_dir, "cookies.sqlite", NULL);
                 defer(dg_free, cookie_file);
@@ -129,6 +132,18 @@ void on_webview_title_changed(WebKitWebView* webview, GParamSpec* pspec, gpointe
                 adw_tab_page_set_title(tab, title);
         } else {
                 adw_tab_page_set_title(tab, "New Tab");
+        }
+}
+
+void on_webview_favicon_changed(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data)
+{
+        (void)pspec;
+        AdwTabPage* tab     = ADW_TAB_PAGE(user_data);
+        GdkTexture* favicon = webkit_web_view_get_favicon(webview);
+        if (favicon) {
+                adw_tab_page_set_icon(tab, G_ICON(favicon));
+        } else {
+                adw_tab_page_set_icon(tab, new_tab_icon);
         }
 }
 

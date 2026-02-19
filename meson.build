@@ -1,5 +1,5 @@
 project('ascetic', 'c',
-  version: '20260131',
+  version: '20260218',
   default_options: [
     'c_std=gnu23',
   ],
