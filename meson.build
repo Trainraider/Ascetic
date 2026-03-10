@@ -1,5 +1,5 @@
 project('ascetic', 'c',
-  version: '20260218',
+  version: '20260309',
   default_options: [
     'c_std=gnu23',
   ],
@@ -122,6 +122,7 @@ ascetic = executable(
 desktop_conf = configuration_data()
 desktop_conf.set('VERSION',   app_version)
 desktop_conf.set('NAME',      app_name)
+desktop_conf.set('APP_ID', app_id)
 desktop_conf.set('EXEC',      get_option('prefix') + '/bin/' + app_target)
 desktop_conf.set('COMMENT',   app_comment)
 desktop_conf.set('ICON',      get_option('prefix') + '/share/icons/hicolor/scalable/apps/' + app_target + '.svg')
@@ -132,6 +133,13 @@ desktop_file = configure_file(
   output:       app_id + '.desktop',
   configuration: desktop_conf,
   install_dir:  'share/applications',
+)
+
+service_file = configure_file(
+  input:         'ascetic.service.in',
+  output:        app_id + '.service',
+  configuration: desktop_conf,
+  install_dir:   'share/dbus-1/services',
 )
 
 # Icon

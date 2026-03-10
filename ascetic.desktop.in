@@ -2,7 +2,7 @@
 Version=@VERSION@
 Type=Application
 Name=@NAME@
-Exec=@EXEC@ %U --gapplication-service
+Exec=@EXEC@ %U
 Comment=@COMMENT@
 Icon=@ICON@
 Terminal=false
