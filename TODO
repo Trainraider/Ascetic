@@ -1,4 +1,6 @@
+implement necessary signal handlers for AdwApplication and WebKitWebView, possibly for other widgets
 handle downloads
+download manager ui
 Change icon
 Loading progress indicator
 sqlite history
@@ -18,7 +20,7 @@ Settings
 - enable http alternatives: Gopher, Gemini, Spartan, freenet, oxen, ipfs, dat, hyper
 - enable tor, i2p, gnunet
 Welcome page
-content blocking
+better content blocking
 extension system
 built-in example extension: 
 - tiling webviews inside tabs with i3wm-like controls
@@ -31,7 +33,6 @@ address bar completions
 reader mode
 tab context menu
 bookmarks
-download manager ui
 DevTools
 Drag URLs onto tabs or address bar
 mute tab audio
