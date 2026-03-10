@@ -4,9 +4,11 @@
 
 // Singleton for shared browser session components
 static struct {
-        WebKitNetworkSession* session;
-        WebKitWebContext*     context;
-        WebKitSettings*       settings;
+        WebKitNetworkSession*         session;
+        WebKitWebContext*             context;
+        WebKitSettings*               settings;
+        WebKitUserContentManager*     content_manager;
+        WebKitUserContentFilterStore* filter_store;
 } browser_session = { 0 };
 
 nonlocal char* get_config_dir()
@@ -57,6 +59,15 @@ nonlocal char* get_cache_dir()
         _S
 }
 
+static void on_filter_saved(GObject* source, GAsyncResult* result, gpointer user_data)
+{
+        GError*                  error  = NULL;
+        WebKitUserContentFilter* filter = webkit_user_content_filter_store_save_finish(
+            WEBKIT_USER_CONTENT_FILTER_STORE(source), result, &error);
+        webkit_user_content_manager_add_filter(WEBKIT_USER_CONTENT_MANAGER(user_data), filter);
+        webkit_user_content_filter_unref(filter);
+}
+
 void browser_session_init(void)
 {
         S_
@@ -88,13 +99,49 @@ void browser_session_init(void)
 
                 browser_session.context  = webkit_web_context_get_default();
                 browser_session.settings = webkit_settings_new();
+                webkit_settings_set_enable_media(browser_session.settings, FALSE);
+                webkit_settings_set_enable_media_stream(browser_session.settings, FALSE);
+
+                browser_session.content_manager = webkit_user_content_manager_new();
+
+                local char* filter_dir = g_build_filename(data_dir, "filters", NULL);
+                defer(dg_free, filter_dir);
+                g_mkdir_with_parents(filter_dir, 0700);
+                browser_session.filter_store = webkit_user_content_filter_store_new(filter_dir);
+
+                GBytes* rules = g_resources_lookup_data(
+                    APP_PREFIX "/block-images.json", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+                webkit_user_content_filter_store_save(
+                    browser_session.filter_store,
+                    "block-images",
+                    rules,
+                    NULL,
+                    on_filter_saved,
+                    browser_session.content_manager);
+                g_bytes_unref(rules);
         _S
 }
 
 void browser_session_cleanup(void)
 {
+        g_object_unref(browser_session.filter_store);
+        g_object_unref(browser_session.content_manager);
         g_object_unref(browser_session.settings);
         g_object_unref(browser_session.session);
+}
+
+void on_load_changed_update_background(WebKitWebView* webview, WebKitLoadEvent load_event, gpointer user_data)
+{
+        switch (load_event) {
+        case WEBKIT_LOAD_STARTED:
+                webkit_web_view_set_background_color(webview, &((GdkRGBA) { 0.1, 0.1, 0.1, 1.0 }));
+                break;
+        case WEBKIT_LOAD_FINISHED:
+                webkit_web_view_set_background_color(webview, &((GdkRGBA) { 1.0, 1.0, 1.0, 1.0 }));
+                break;
+        default:
+                break;
+        }
 }
 
 WebKitWebView* create_webview(WebKitWebView* related_view)
@@ -105,6 +152,7 @@ WebKitWebView* create_webview(WebKitWebView* related_view)
                     WEBKIT_TYPE_WEB_VIEW,
                     "settings", browser_session.settings,
                     "related-view", related_view,
+                    "user-content-manager", browser_session.content_manager,
                     "hexpand", TRUE,
                     "vexpand", TRUE,
                     NULL));
@@ -114,12 +162,14 @@ WebKitWebView* create_webview(WebKitWebView* related_view)
                     "network-session", browser_session.session,
                     "web-context", browser_session.context,
                     "settings", browser_session.settings,
+                    "user-content-manager", browser_session.content_manager,
                     "hexpand", TRUE,
                     "vexpand", TRUE,
                     NULL));
         }
 
         webkit_web_view_set_background_color(webview, &((GdkRGBA) { 0.1, 0.1, 0.1, 1.0 }));
+        g_signal_connect(webview, "load-changed", G_CALLBACK(on_load_changed_update_background), NULL);
         return webview;
 }
 

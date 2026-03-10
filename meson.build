@@ -69,11 +69,12 @@ gresource_xml = custom_target(
 # glib-compile-resources
 glib_compile_resources = find_program('glib-compile-resources')
 
-icon_svg = files(data_dir + '/icon.svg')
+icon_svg         = files(data_dir + '/icon.svg')
+block_images_json = files(data_dir + '/block-images.json')
 
 data_c = custom_target(
   'data.c',
-  input:   [gresource_xml] + ui_files + icon_svg,
+  input:   [gresource_xml] + ui_files + icon_svg + block_images_json,
   output:  'data.c',
   command: [
     glib_compile_resources,
@@ -87,7 +88,7 @@ data_c = custom_target(
 
 data_h = custom_target(
   'data.h',
-  input:   [gresource_xml] + ui_files + icon_svg,
+  input:   [gresource_xml] + ui_files + icon_svg + block_images_json,
   output:  'data.h',
   command: [
     glib_compile_resources,

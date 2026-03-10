@@ -1,0 +1,51 @@
+[
+  {
+    "trigger": {
+      "url-filter": ".*",
+      "resource-type": ["image", "svg-document"]
+    },
+    "action": { "type": "block" }
+  },
+  {
+    "trigger": {
+      "url-filter": "recaptcha",
+      "resource-type": ["image", "svg-document"]
+    },
+    "action": { "type": "ignore-previous-rules" }
+  },
+  {
+    "trigger": {
+      "url-filter": "hcaptcha",
+      "resource-type": ["image", "svg-document"]
+    },
+    "action": { "type": "ignore-previous-rules" }
+  },
+  {
+    "trigger": {
+      "url-filter": "funcaptcha",
+      "resource-type": ["image", "svg-document"]
+    },
+    "action": { "type": "ignore-previous-rules" }
+  },
+  {
+    "trigger": {
+      "url-filter": "arkoselabs",
+      "resource-type": ["image", "svg-document"]
+    },
+    "action": { "type": "ignore-previous-rules" }
+  },
+  {
+    "trigger": {
+      "url-filter": "cf-challenge",
+      "resource-type": ["image", "svg-document"]
+    },
+    "action": { "type": "ignore-previous-rules" }
+  },
+  {
+    "trigger": {
+      "url-filter": "challenges\\.cloudflare",
+      "resource-type": ["image", "svg-document"]
+    },
+    "action": { "type": "ignore-previous-rules" }
+  }
+]

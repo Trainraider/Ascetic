@@ -3,5 +3,6 @@
   <gresource prefix="__PREFIX__">
     <file>app_window.ui</file>
     <file>settings_page.ui</file>
+    <file>block-images.json</file>
   </gresource>
 </gresources>
