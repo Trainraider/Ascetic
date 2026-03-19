@@ -99,6 +99,8 @@ void browser_session_init(void)
 
                 browser_session.context  = webkit_web_context_get_default();
                 browser_session.settings = webkit_settings_new();
+                webkit_settings_set_user_agent(browser_session.settings,
+                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15");
                 webkit_settings_set_enable_media(browser_session.settings, FALSE);
                 webkit_settings_set_enable_media_stream(browser_session.settings, FALSE);
 

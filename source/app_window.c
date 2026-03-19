@@ -159,6 +159,14 @@ void on_webview_leave_fullscreen(WebKitWebView* webview, gpointer user_data)
         gtk_revealer_set_reveal_child(window->revealer_main_toolbar, TRUE);
 }
 
+void on_webview_close(WebKitWebView* webview, gpointer user_data)
+{
+        AsceticAppWindow* window   = ASCETIC_APP_WINDOW(user_data);
+        AdwTabPage*       tab      = adw_tab_view_get_page(window->web_tab_view, GTK_WIDGET(webview));
+        if (tab)
+                adw_tab_view_close_page(window->web_tab_view, tab);
+}
+
 WebKitWebView* on_create_web_view(WebKitWebView* webview, WebKitNavigationAction* navigation_action, gpointer user_data)
 {
         (void)navigation_action;
@@ -188,6 +196,7 @@ AdwTabPage* new_tab(GtkWidget* widget, gpointer user_data)
         g_signal_connect(webview, "enter-fullscreen", G_CALLBACK(on_webview_enter_fullscreen), window);
         g_signal_connect(webview, "leave-fullscreen", G_CALLBACK(on_webview_leave_fullscreen), window);
         g_signal_connect(webview, "create", G_CALLBACK(on_create_web_view), window);
+        g_signal_connect(webview, "close", G_CALLBACK(on_webview_close), window);
         if (G_TYPE_CHECK_INSTANCE_TYPE(widget, GTK_TYPE_BUTTON)) {
                 gtk_widget_grab_focus(GTK_WIDGET(url_entry));
         }

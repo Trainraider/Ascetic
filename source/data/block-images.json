@@ -8,6 +8,20 @@
   },
   {
     "trigger": {
+      "url-filter": "accounts\\.google\\.com",
+      "resource-type": ["image", "svg-document"]
+    },
+    "action": { "type": "ignore-previous-rules" }
+  },
+  {
+    "trigger": {
+      "url-filter": "gstatic\\.com",
+      "resource-type": ["image", "svg-document"]
+    },
+    "action": { "type": "ignore-previous-rules" }
+  },
+  {
+    "trigger": {
       "url-filter": "recaptcha",
       "resource-type": ["image", "svg-document"]
     },
