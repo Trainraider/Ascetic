@@ -1,18 +1,16 @@
 # Ascetic
 
-A web browser that blocks images and media by default. The web as text.
+A web browser that blocks images, video, and other media by default. Protect your senses from media that may inflame the passions.
 
-Built on GTK4, Libadwaita, and WebKitGTK.
+Built on GTK4, Libadwaita, and WebKitGTK. This is Linux only because WebKitGTK is Linux only. (Maybe it can compile on BSDs)
 
 Alpha software. Many features and internal signals are not yet implemented and much of the current behavior will eventually be user-configurable.
 
-## What it does differently
-
-Images and SVGs are blocked globally via WebKit's content filter API. The only exceptions are CAPTCHA providers (Google, hCaptcha, Cloudflare, Arkose) so bot challenges still work. Video and audio are also disabled entirely.
+Images and SVGs are blocked via WebKit's content filter API. The only exceptions are CAPTCHA providers (Google, hCaptcha, Cloudflare, Arkose) so bot challenges still work. Video and audio are also disabled entirely. Some media may get through. There are many different ways media ends up on a web page.
 
 The user agent is set to Safari on macOS. This avoids fingerprinting issues and lets the browser pass Cloudflare checks.
 
-The URL bar distinguishes real URLs from search queries. Anything that isn't a navigable address becomes a Brave search query. Third-party cookies are blocked.
+The URL bar distinguishes URLs from search queries. Anything that isn't a navigable address becomes a Brave search query. Third-party cookies are blocked.
 
 ## Dependencies
 
